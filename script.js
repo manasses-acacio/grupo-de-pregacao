@@ -20,3 +20,28 @@ atualizarTempo();
 
 // Atualiza a função a cada 1 segundo (1000 milissegundos)
 setInterval(atualizarTempo, 1000);
+
+function gerarCalendario() {
+  const calendario = document.getElementById("calendario");
+  const hoje = new Date();
+  const diaAtual = hoje.getDate();
+  const mes = hoje.getMonth();
+  const ano = hoje.getFullYear();
+
+  // Último dia do mês
+  const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+
+  for (let dia = 1; dia <= ultimoDia; dia++) {
+    const divDia = document.createElement("div");
+    divDia.textContent = dia;
+
+    if (dia === diaAtual) {
+      divDia.classList.add("hoje");
+    }
+
+    calendario.appendChild(divDia);
+  }
+}
+
+gerarCalendario();
+
