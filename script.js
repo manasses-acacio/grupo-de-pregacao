@@ -40,8 +40,31 @@ function gerarCalendario() {
     }
 
     calendario.appendChild(divDia);
+    divDia.addEventListener("click", () => abrirAgenda(dia));
+
   }
 }
 
 gerarCalendario();
+function abrirAgenda(dia) {
+  document.getElementById("agendaDia").textContent = "Anotações do dia " + dia;
+  document.getElementById("agendaModal").style.display = "block";
+
+  // Carregar nota salva (se existir)
+  const notaSalva = localStorage.getItem("nota_" + dia);
+  document.getElementById("nota").value = notaSalva || "";
+}
+
+function fecharAgenda() {
+  document.getElementById("agendaModal").style.display = "none";
+}
+
+function salvarNota() {
+  const dia = document.getElementById("agendaDia").textContent.split(" ")[3];
+  const texto = document.getElementById("nota").value;
+  localStorage.setItem("nota_" + dia, texto);
+  alert("Nota salva para o dia " + dia);
+  fecharAgenda();
+}
+
 

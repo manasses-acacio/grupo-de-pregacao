@@ -22,8 +22,8 @@ header {
           url("DSC_3981.jpg");
 }
 h1 {
-    font-size: clamp(2rem, 2vw + 1rem, 3rem);
-    color: rgb(97, 82, 142);
+    font-size: clamp(2rem, 2vw + 1rem, 2rem);
+    color: rgb(204, 198, 221);
     text-transform: uppercase;
     letter-spacing: 3px;
     word-spacing: 10px;
@@ -36,21 +36,23 @@ h1 {
 h2 {
     letter-spacing: 5px;
     word-spacing: 10px;
-    color: rgb(97, 82, 142);
+    color: rgb(204, 198, 224);
     margin-top: 1px;
 }
 h3, h4 {
-    - display: inline-block;
+    display: inline-block;
     display: inline;
     margin: 0px;
-    background-color: rgb(134, 251, 152);
+    background-color: rgba(134, 251, 152, 0.3);
     color: rgb(130, 107, 224);
     border-radius: 6px;
-    font-size: clamp(0.5rem, 2vw + 1rem, 2rem);
+    font-size: clamp(0.5rem, 2vw + 1rem, 1.5rem);
+    text-align: center;
+    padding: 5px;
 }
 .cards {
   display: grid;
-  grid-template-columns: repeat(1fr, 1fr); /* 2 colunas */
+  grid-template-columns: repeat(2, 1fr); /* 2 colunas */
   gap: 20px;
   padding: 20px;
   width: 100%;          /* garante que ocupe toda a largura */
@@ -71,7 +73,7 @@ h3, h4 {
   border-radius: 8px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .grid-calendario {
