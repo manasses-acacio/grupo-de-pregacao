@@ -19,33 +19,33 @@
       <div class="card calendario">
         <div class="grid-calendario" id="calendario"></div>
       </div>
-      <div class="card">Card 2</div>
-      <div class="card">Card 3</div>
-      <div class="card">Card 4</div>
+      <div class="card" id="reunioes">Reuniões</div>
+      <div class="card" id="anuncios">Anúncios</div>
+      <div class="card">Novidades</div>
+      <form action="">
+        <div class="card" id="relatorio">Relatório de Serviço de Campo</div>
+        <fieldset>
+          <div>Nome</div>
+          <div>Mês</div>
+          <div>Publicador</div>
+          <div>Pioneiro Auxiliar</div>
+          <div>Pioneiro Regular</div>
+          <div>Observações</div>
+        </fieldset>
+      </form>
     </main>
 
-    <footer></footer>
     <!-- Agenda Modal -->
-    <div
-      id="agendaModal"
-      style="
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-      "
-    >
+    <div id="agendaModal">
       <h5 id="agendaDia">Anotações do dia</h5>
       <textarea id="nota" rows="5" style="width: 100%"></textarea>
       <button onclick="salvarNota()">Salvar</button>
       <button onclick="fecharAgenda()">Fechar</button>
     </div>
+
+    <footer>
+      <h6 id="novidades">Novidades</h6>
+    </footer>
 
     <script src="script.js"></script>
   </body>

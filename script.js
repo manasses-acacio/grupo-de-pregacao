@@ -66,5 +66,43 @@ function salvarNota() {
   alert("Nota salva para o dia " + dia);
   fecharAgenda();
 }
+window.addEventListener("scroll", () => {
+  const card3 = document.querySelector(".card.overlap:nth-of-type(3)");
+  const card4 = document.querySelector(".card.overlap:nth-of-type(4)");
+
+  const rect3 = card3.getBoundingClientRect();
+  const rect4 = card4.getBoundingClientRect();
+
+  // Quando o Card 4 chega perto do Card 3, aplica a sobreposição
+  if (rect4.top < rect3.bottom - 40) {
+    card4.style.zIndex = 20; // Card 4 por cima
+    card3.style.zIndex = 10; // Card 3 por baixo
+  } else {
+    card4.style.zIndex = 10; // volta ao normal
+    card3.style.zIndex = 20;
+  }
+});
+window.addEventListener("scroll", () => {
+  const card3 = document.querySelector(".card.overlap:nth-of-type(3)");
+  const card4 = document.querySelector(".card.overlap:nth-of-type(4)");
+
+  const rect3 = card3.getBoundingClientRect();
+  const rect4 = card4.getBoundingClientRect();
+
+  // Quando o Card 4 se aproxima do Card 3
+  if (rect4.top < rect3.bottom - 40) {
+    card4.style.zIndex = 20;
+    card4.style.opacity = 1;          // aparece totalmente
+    card4.style.transform = "translateY(0)"; // posição normal
+    card3.style.opacity = 0.6;        // fica mais transparente
+    card3.style.transform = "scale(0.98)"; // leve redução
+  } else {
+    card4.style.zIndex = 10;
+    card4.style.opacity = 0.8;        // começa mais suave
+    card4.style.transform = "translateY(20px)"; // leve deslocamento
+    card3.style.opacity = 1;          // volta ao normal
+    card3.style.transform = "scale(1)";
+  }
+});
 
 
