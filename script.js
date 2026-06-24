@@ -1,24 +1,18 @@
 function atualizarTempo() {
-    const agora = new Date();
+  const agora = new Date();
 
-    // Formata a data no padrão brasileiro (DD/MM/AAAA)
-    const opcoesData = {weekday: 'long', day: '2-digit', month: '2-digit', year:'numeric' };
-    const dataBruta = agora.toLocaleDateString('pt-BR', opcoesData).toUpperCase();
-    const dataFormatada = dataBruta.charAt(0).toUpperCase() + dataBruta.slice(1);
+  const opcoesData = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' };
+  const dataBruta = agora.toLocaleDateString('pt-BR', opcoesData);
+  const dataFormatada = dataBruta.charAt(0).toUpperCase() + dataBruta.slice(1);
 
-    // Formata a hora (HH:MM:SS)
-    const opcoesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    const horaFormatada = agora.toLocaleTimeString('pt-BR', opcoesHora);
+  const opcoesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const horaFormatada = agora.toLocaleTimeString('pt-BR', opcoesHora);
 
-    // Insere os valores formatados dentro do HTML
-    document.getElementById('data').textContent = dataFormatada;
-    document.getElementById('hora').textContent = horaFormatada;
+  document.getElementById('data').textContent = dataFormatada;
+  document.getElementById('hora').textContent = horaFormatada;
 }
 
-// Executa a função imediatamente ao carregar a página
 atualizarTempo();
-
-// Atualiza a função a cada 1 segundo (1000 milissegundos)
 setInterval(atualizarTempo, 1000);
 
 function gerarCalendario() {
@@ -28,7 +22,6 @@ function gerarCalendario() {
   const mes = hoje.getMonth();
   const ano = hoje.getFullYear();
 
-  // Último dia do mês
   const ultimoDia = new Date(ano, mes + 1, 0).getDate();
 
   for (let dia = 1; dia <= ultimoDia; dia++) {
@@ -41,16 +34,15 @@ function gerarCalendario() {
 
     calendario.appendChild(divDia);
     divDia.addEventListener("click", () => abrirAgenda(dia));
-
   }
 }
 
 gerarCalendario();
+
 function abrirAgenda(dia) {
   document.getElementById("agendaDia").textContent = "Anotações do dia " + dia;
   document.getElementById("agendaModal").style.display = "block";
 
-  // Carregar nota salva (se existir)
   const notaSalva = localStorage.getItem("nota_" + dia);
   document.getElementById("nota").value = notaSalva || "";
 }
@@ -66,43 +58,36 @@ function salvarNota() {
   alert("Nota salva para o dia " + dia);
   fecharAgenda();
 }
-window.addEventListener("scroll", () => {
-  const card3 = document.querySelector(".card.overlap:nth-of-type(3)");
-  const card4 = document.querySelector(".card.overlap:nth-of-type(4)");
 
-  const rect3 = card3.getBoundingClientRect();
-  const rect4 = card4.getBoundingClientRect();
+// Listas em minúsculo
+const pioneirosRegulares = ["andré almeida de souza", "alessandra dionisio dos santos", "ana carolina", "manassés acácio"];
+const grupoPermitido = ["andré almeida de souza", "alessandra dionisio dos santos", "ana carolina", "amanda santos", "anacilia araujo", "analice santos", "edilene matos", "elisangela santos", "enzo dionisio dos santos", "erik ferreira", "gicelia peron de santana", "ivanice lira", "josé ailton lira", "larissa guedes", "larissa lira", "lucas bittencourt", "manassés acácio", "marcia pereira", "roque santos", "vanuza lira"];
 
-  // Quando o Card 4 chega perto do Card 3, aplica a sobreposição
-  if (rect4.top < rect3.bottom - 40) {
-    card4.style.zIndex = 20; // Card 4 por cima
-    card3.style.zIndex = 10; // Card 3 por baixo
-  } else {
-    card4.style.zIndex = 10; // volta ao normal
-    card3.style.zIndex = 20;
-  }
-});
-window.addEventListener("scroll", () => {
-  const card3 = document.querySelector(".card.overlap:nth-of-type(3)");
-  const card4 = document.querySelector(".card.overlap:nth-of-type(4)");
-
-  const rect3 = card3.getBoundingClientRect();
-  const rect4 = card4.getBoundingClientRect();
-
-  // Quando o Card 4 se aproxima do Card 3
-  if (rect4.top < rect3.bottom - 40) {
-    card4.style.zIndex = 20;
-    card4.style.opacity = 1;          // aparece totalmente
-    card4.style.transform = "translateY(0)"; // posição normal
-    card3.style.opacity = 0.6;        // fica mais transparente
-    card3.style.transform = "scale(0.98)"; // leve redução
-  } else {
-    card4.style.zIndex = 10;
-    card4.style.opacity = 0.8;        // começa mais suave
-    card4.style.transform = "translateY(20px)"; // leve deslocamento
-    card3.style.opacity = 1;          // volta ao normal
-    card3.style.transform = "scale(1)";
-  }
+// Alterna formulário
+document.getElementById("relatorio").addEventListener("click", () => {
+  const formContainer = document.getElementById("form-container");
+  formContainer.style.display = formContainer.style.display === "none" ? "block" : "none";
 });
 
+// Validação
+document.getElementById("formulario").addEventListener("submit", function(event) {
+  event.preventDefault();
+  const nome = document.getElementById("nome").value.trim().toLowerCase();
+  const pioneiroRegHoras = document.getElementById("pioneiroReg").value;
 
+  if (!grupoPermitido.includes(nome)) {
+    document.getElementById("mensagem").innerText = "Você não é deste grupo.";
+    document.getElementById("mensagem").style.color = "red";
+    return;
+  }
+
+  if (pioneiroRegHoras && !pioneirosRegulares.includes(nome)) {
+    document.getElementById("mensagem").innerText = "Você não é pioneiro regular.";
+    document.getElementById("mensagem").style.color = "red";
+    return;
+  }
+
+  document.getElementById("mensagem").style.color = "green";
+  document.getElementById("mensagem").innerText = "Formulário enviado com sucesso!";
+  this.reset();
+});
