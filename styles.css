@@ -10,7 +10,7 @@ header {
     background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
-    padding-top: 60px;
+    padding-top: 5px;
     font-family: "Times New Roman", Times, serif;
     align-items: center;
     justify-content: flex-start;
@@ -30,14 +30,14 @@ h1 {
     line-height: 1.2;
     margin-top: 0;
     margin-bottom: 0.5rem;
-    padding-top: 0px;
    }
 
 h2 {
     letter-spacing: 5px;
     word-spacing: 10px;
     color: rgb(204, 198, 224);
-    margin-top: 1px;
+    margin-top: 0px;
+    padding: 0px;
 }
 h3, h4 {
     display: inline-block;
@@ -70,7 +70,7 @@ h3, h4 {
 .card {
   height: 250px;
   background: #f5f5f5;
-  border-radius: 15px;
+  border-radius: 20px;
   padding: 40px;
   text-align: center;
   box-shadow: 0 8px 10px rgba(0,0,0,0.2);
@@ -86,14 +86,14 @@ h3, h4 {
   background-color: aquamarine;
   color: #007bff;
   font-family: sans-serif; 
-  padding: 0px 20px auto 20px; 
+  padding: 10px 20px auto 20px; 
   text-align: center;
 }
 .card-interno {
   display: flex;
   flex-direction: column;
   gap: 22px;
-  
+  margin-top: 40px;
 }
 .cards-inter {
   background-color: rgba(255, 255, 255, 0.4);
@@ -109,6 +109,8 @@ h3, h4 {
 .cards-inter:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 15px rgba(230, 203, 203, 0.25);
+  background-color: rgb(244, 234, 253);
+  color: #000;
 }
 
 #anuncios {
@@ -144,6 +146,13 @@ h3, h4 {
   font-size: larger;
   font-weight: 600;
   align-items: center;
+  border-radius: 20px; 
+}
+@media (max-width: 768px) {
+  #formulario {
+    grid-template-columns: 1fr;
+  }
+
 }
 fieldset {
   text-align: center;
@@ -180,6 +189,7 @@ button {
   width: 40%;
   max-width: 500px;
   margin: 10px auto;
+  margin-inline: 10px;
   margin-top: 20px;
   padding: 5px;
   border-radius: 15px;
@@ -236,9 +246,12 @@ button:focus {
   transform: translate(-50%, -50%);
   background: #fff;
   padding: 20px;
-  border-radius: 8px;
+  min-width: 400px;
+  min-height: 40px;
+  border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   z-index: 1000;
+  text-align: center;
 }
 
 #novidades {

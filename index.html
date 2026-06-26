@@ -27,6 +27,7 @@
         <div class="card calendario">
           <div class="grid-calendario" id="calendario"></div>
         </div>
+
         <div class="card" id="reunioes">
           Reuniões
           <div class="card-interno">
@@ -113,7 +114,12 @@
       <!-- Agenda Modal -->
       <div id="agendaModal" style="display: none">
         <h5 id="agendaDia">Anotações do dia</h5>
-        <textarea id="nota" rows="5" style="width: 100%"></textarea>
+        <textarea
+          placeholder="Anotações do dia:"
+          id="nota"
+          rows="5"
+          style="width: 100%"
+        ></textarea>
         <button onclick="salvarNota()">Salvar</button>
         <button onclick="fecharAgenda()">Fechar</button>
       </div>
