@@ -21,7 +21,7 @@ header {
     top: 0;
     background-image:
           linear-gradient(rgba(15, 12, 28, 0.1), rgba(15, 12, 28, 0)),
-          url("img/DSC_3981.jpg");
+          url("img/pregar.jpg");
 }
 h1 {
     font-size: clamp(2rem, 2vw + 1rem, 2rem);
@@ -154,12 +154,16 @@ h3:hover, h4:hover {
     background-position: 0% 100%;
   }
 }
+#reunioes {
+  background: transparent; 
+  box-shadow: none;       
+}
 .card-interno {
   width: 300px;
-  height: 200px;
+  height: 250px;
   display: flex;
   gap: 20px;
-  margin-top: 40px;
+  margin-top: -10px;
   overflow-x: auto;
   scrollbar-width: none;
   padding: 10px;
@@ -167,12 +171,14 @@ h3:hover, h4:hover {
 .card-interno::-webkit-scrollbar {
   display: none; /* Chrome, Safari e Edge */
 }
-
+.cards-inter:first-child {
+  margin-left: 30px; /* Aumente ou diminua esse valor até ficar na posição que você quer */
+}
 .cards-inter {
   background-color: rgba(255, 255, 255, 0.4);
-  padding: 15px;
+  padding: 0px;
   border-radius: 18px;
-  border: 2px solid rgba(0, 0, 0 , 0.3);
+  border:  rgba(0, 0, 0 , 0.3);
   flex: 0 0 180px;   /* largura fixa mínima */
   max-width: 280px;  /* não cresce além disso */
   min-height: 00px;
@@ -188,9 +194,9 @@ h3:hover, h4:hover {
 
 .cards-inter img {
   width: 100%;
-  height: auto;       /* mantém proporção */
+  height: 100%;       /* mantém proporção */
   object-fit: cover;      /* garante que a imagem se ajuste */
-  border-radius: 15px;
+  border-radius: 16px;
 }
 .cards-inter:hover {
   transform: scale(1.05);
