@@ -1,6 +1,8 @@
+// ==========================================
+// 1. O SEU RELÓGIO (Não mexemos aqui)
+// ==========================================
 function atualizarTempo() {
   const agora = new Date();
-
   const opcoesData = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' };
   const dataBruta = agora.toLocaleDateString('pt-BR', opcoesData);
   const dataFormatada = dataBruta.charAt(0).toUpperCase() + dataBruta.slice(1);
@@ -13,51 +15,168 @@ function atualizarTempo() {
 }
 
 atualizarTempo();
-setInterval(atualizarTempo, 1000);
+setInterval(atualizarTempo, 1000); // Atualiza a cada 1 segundo
+
+// ==========================================
+// 2. O SEU CALENDÁRIO (Desenha os dias)
+// ==========================================
+
+// Variáveis para controlar qual mês/ano estamos visualizando no momento
+let dataView = new Date();
+let mesAtualView = dataView.getMonth();
+let anoAtualView = dataView.getFullYear();
 
 function gerarCalendario() {
   const calendario = document.getElementById("calendario");
+  calendario.innerHTML = ""; // Limpa os dias anteriores antes de desenhar o novo mês
+
   const hoje = new Date();
-  const diaAtual = hoje.getDate();
-  const mes = hoje.getMonth();
-  const ano = hoje.getFullYear();
+  
+  // Descobre quantos dias tem o mês atual
+  const ultimoDia = new Date(anoAtualView, mesAtualView + 1, 0).getDate();
+  
+  // Descobre em qual dia da semana cai o dia 1º (0 = Domingo, 1 = Segunda, ..., 6 = Sábado)
+  const diaSemanaInicio = new Date(anoAtualView, mesAtualView, 1).getDay(); 
 
-  const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+  // Exibe o Nome do Mês e o Ano no HTML
+  const nomeMes = new Date(anoAtualView, mesAtualView).toLocaleDateString('pt-BR', { month: 'long' });
+  document.getElementById("mes-ano-display").textContent = nomeMes;
 
+  // --- PASSO 1: Cabeçalho com os nomes dos dias da semana ---
+  const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  for (let i = 0; i < 7; i++) {
+    const divDiaSemana = document.createElement("div");
+    divDiaSemana.textContent = diasDaSemana[i];
+    divDiaSemana.style.fontWeight = "bold";
+    divDiaSemana.style.fontSize = "0.8rem"; // Letra um pouco menor para caber na grade
+    
+    // Se for o primeiro dia (Domingo, índice 0), pinta de vermelho
+    if (i === 0) {
+      divDiaSemana.style.color = "red";
+    }
+    
+    calendario.appendChild(divDiaSemana);
+  }
+
+  // --- PASSO 2: Espaços em branco antes do dia 1º ---
+  // Isso empurra o dia 1º para cair na coluna correta da semana
+  for (let i = 0; i < diaSemanaInicio; i++) {
+    const divVazia = document.createElement("div");
+    calendario.appendChild(divVazia);
+  }
+
+  // --- PASSO 3: Preencher os números dos dias do mês ---
   for (let dia = 1; dia <= ultimoDia; dia++) {
     const divDia = document.createElement("div");
     divDia.textContent = dia;
 
-    if (dia === diaAtual) {
+    // A matemática abaixo descobre se a coluna atual é Domingo. Se for, pinta de vermelho.
+    if ((diaSemanaInicio + dia - 1) % 7 === 0) {
+      divDia.style.color = "red";
+      divDia.style.fontWeight = "bold";
+    }
+
+    // Marca o dia de "hoje" com a sua classe CSS
+    if (dia === hoje.getDate() && mesAtualView === hoje.getMonth() && anoAtualView === hoje.getFullYear()) {
       divDia.classList.add("hoje");
     }
 
     calendario.appendChild(divDia);
-    divDia.addEventListener("click", () => abrirAgenda(dia));
   }
 }
 
+// Evento para voltar um mês
+document.getElementById("btn-mes-anterior").addEventListener("click", () => {
+  mesAtualView--;
+  if (mesAtualView < 0) {
+    mesAtualView = 11; // Volta para dezembro
+    anoAtualView--;    // Volta um ano
+  }
+  gerarCalendario();
+});
+
+// Evento para avançar um mês
+document.getElementById("btn-mes-proximo").addEventListener("click", () => {
+  mesAtualView++;
+  if (mesAtualView > 11) {
+    mesAtualView = 0;  // Vai para janeiro
+    anoAtualView++;    // Avança um ano
+  }
+  gerarCalendario();
+});
+
 gerarCalendario();
 
-function abrirAgenda(dia) {
-  document.getElementById("agendaDia").textContent = "Anotações do dia " + dia;
-  document.getElementById("agendaModal").style.display = "block";
+// ==========================================
+// 3. A NOVA AGENDA (O modelo que você gostou)
+// ==========================================
 
-  const notaSalva = localStorage.getItem("nota_" + dia);
-  document.getElementById("nota").value = notaSalva || "";
+// Ao clicar em qualquer lugar do calendário, abre o modal
+document.getElementById('calendario').addEventListener('click', function() {
+    document.getElementById('modal-agenda').style.display = 'flex';
+});
+
+// Fechar o modal
+function fecharModal() {
+    document.getElementById('modal-agenda').style.display = 'none';
 }
 
-function fecharAgenda() {
-  document.getElementById("agendaModal").style.display = "none";
+// Salvar o lembrete
+function salvarLembrete() {
+    const inputDataHora = document.getElementById('data-hora-lembrete').value;
+    const inputMensagem = document.getElementById('mensagem-lembrete').value;
+    const inputAnotacoes = document.getElementById('anotacoes-lembrete').value; 
+
+    if (!inputDataHora || !inputMensagem) {
+        alert("⚠️ Por favor, preencha pelo menos a data e o aviso principal!");
+        return;
+    }
+
+    let lembretes = JSON.parse(localStorage.getItem('minhaAgenda')) || [];
+    
+    lembretes.push({
+        tempoEmMilissegundos: new Date(inputDataHora).getTime(),
+        texto: inputMensagem,
+        anotacoes: inputAnotacoes, 
+        jaFoiAvisado: false
+    });
+
+    localStorage.setItem('minhaAgenda', JSON.stringify(lembretes));
+    alert("✅ Lembrete salvo com sucesso!");
+    fecharModal();
+    
+    // Limpa os campos para o próximo agendamento
+    document.getElementById('data-hora-lembrete').value = "";
+    document.getElementById('mensagem-lembrete').value = "";
+    document.getElementById('anotacoes-lembrete').value = "";
 }
 
-function salvarNota() {
-  const dia = document.getElementById("agendaDia").textContent.split(" ")[3];
-  const texto = document.getElementById("nota").value;
-  localStorage.setItem("nota_" + dia, texto);
-  alert("Nota salva para o dia " + dia);
-  fecharAgenda();
-}
+// O relógio oculto que checa os alarmes a cada 10 segundos
+setInterval(function() {
+    let lembretes = JSON.parse(localStorage.getItem('minhaAgenda')) || [];
+    let tempoAtual = new Date().getTime(); 
+    let teveAlteracao = false;
+
+    lembretes.forEach(lembrete => {
+        if (tempoAtual >= lembrete.tempoEmMilissegundos && lembrete.jaFoiAvisado === false) {
+            
+            let mensagemDoAlerta = "⏰ AVISO DA AGENDA:\n\n" + lembrete.texto;
+            
+            if (lembrete.anotacoes && lembrete.anotacoes.trim() !== "") {
+                mensagemDoAlerta += "\n\n📝 ANOTAÇÕES:\n" + lembrete.anotacoes;
+            }
+            
+            alert(mensagemDoAlerta);
+            
+            lembrete.jaFoiAvisado = true; 
+            teveAlteracao = true;
+        }
+    });
+
+    if (teveAlteracao) {
+        localStorage.setItem('minhaAgenda', JSON.stringify(lembretes));
+    }
+}, 10000);
 
 // Listas em minúsculo
 const pioneirosRegulares = ["andré almeida de souza", "alessandra dionisio dos santos", "ana carolina", "manassés acácio"];

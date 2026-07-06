@@ -6,14 +6,7 @@
     <title>Grupo de Pregação N°6</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <!doctype html>
-  <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Grupo de Pregação N°6</title>
-      <link rel="stylesheet" href="style.css" />
-    </head>
+  
     <body>
       <header>
         <h1>Grupo de Pregação N°6</h1>
@@ -26,7 +19,15 @@
       </div>
 
       <main class="cards">
-        <div class="card calendario">
+
+                <div class="card calendario">
+          <!-- NOVO: Cabeçalho com botões e nome do mês -->
+          <div class="calendario-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <button id="btn-mes-anterior">&lt;</button>
+            <span id="mes-ano-display"></span>  
+            <button id="btn-mes-proximo">&gt;</button>
+          </div>
+          
           <div class="grid-calendario" id="calendario"></div>
         </div>
 
@@ -166,7 +167,28 @@
       <footer>
         <h6 id="novidades">Novidades</h6>
       </footer>
-
+      <!-- Modal de Agendamento de Lembretes -->
+    <div id="modal-agenda" class="modal-oculto">
+    <div class="modal-conteudo">
+       <h3 style="color: #333; margin-top: 0;">Novo Lembrete</h3>
+    
+       <label for="data-hora-lembrete" style="color: #333;">Quando devo avisar?</label>
+       <input type="datetime-local" id="data-hora-lembrete">
+    
+       <label for="mensagem-lembrete" style="color: #333;">Qual é o aviso?</label>
+       <input type="text" id="mensagem-lembrete" placeholder="Ex: Reunião com a congregação">
+    
+       <!-- NOVO CAMPO: ANOTAÇÕES -->
+       <label for="anotacoes-lembrete" style="color: #333;">Anotações (opcional):</label>
+       <textarea id="anotacoes-lembrete" rows="4" placeholder="Digite aqui os detalhes extras, números, textos..."></textarea>
+    
+    <div class="modal-botoes">
+      <button class="btn-salvar" onclick="salvarLembrete()">Salvar Lembrete</button>
+      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+    </div>
+    </div>
+    </div>
+    
       <script src="script.js"></script>
     </body>
   </html>
