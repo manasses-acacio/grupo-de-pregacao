@@ -6,190 +6,285 @@
     <title>Grupo de Pregação N°6</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  
-    <body>
-      <header>
-        <h1>Grupo de Pregação N°6</h1>
-        <h2>Congregação Capuame</h2>
-      </header>
 
-      <div class="data-hora">
-        <h3 id="data">carregando data</h3>
-        <h4 id="hora">carregando hora</h4>
-      </div>
+  <body>
+    <header>
+      <h1>Grupo de Pregação N°6</h1>
+      <h2>Congregação Capuame</h2>
+    </header>
 
-      <main class="cards">
+    <div class="data-hora">
+      <h3 id="data">carregando data</h3>
+      <h4 id="hora">carregando hora</h4>
+    </div>
 
-                <div class="card calendario">
-          <!-- NOVO: Cabeçalho com botões e nome do mês -->
-          <div class="calendario-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <button id="btn-mes-anterior">&lt;</button>
-            <span id="mes-ano-display"></span>  
-            <button id="btn-mes-proximo">&gt;</button>
-          </div>
-          
-          <div class="grid-calendario" id="calendario"></div>
+    <main class="cards">
+      <div class="card calendario">
+        <!-- NOVO: Cabeçalho com botões e nome do mês -->
+        <div
+          class="calendario-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <button id="btn-mes-anterior">&lt;</button>
+          <span id="mes-ano-display"></span>
+          <button id="btn-mes-proximo">&gt;</button>
         </div>
 
-        <div class="card" id="reunioes">
-          <span class="title-reunioes">Reuniões</span>
+        <div class="grid-calendario" id="calendario"></div>
+      </div>
 
-          <div class="card-interno" id="meio-de-semana">
-            <a
-              href="servicodecampo.html"
-              class="cards-inter"
-              id="fim-de-semana"
-              target="_blank"
-            >
-              <img src="img/pregar.jpg" alt="Ícone Serviço de Campo" />
-            </a>
-            <a href="meio-de-semana.html" class="cards-inter" target="_blank">
-              <img src="img/vidaeministerio.jpeg" alt="Ícone Meio de Semana" />
-            </a>
-            <a
-              href="fim-de-semana.html"
-              class="cards-inter"
-              id="fim-de-semana"
-              target="_blank"
-            >
-              <img src="img/asentinela.jpeg" alt="Ícone Fim de Semana" />
-            </a>
+      <div class="card" id="reunioes">
+        <span class="title-reunioes">Reuniões</span>
 
-            <a
-              href="congresso-assembleia.html"
-              class="cards-inter"
-              id="congresso-assembleia"
-              target="_blank"
+        <div class="card-interno" id="meio-de-semana">
+          <a
+            href="servicodecampo.html"
+            class="cards-inter"
+            id="fim-de-semana"
+            target="_blank"
+          >
+            <img src="img/pregar.jpg" alt="Ícone Serviço de Campo" />
+          </a>
+          <a href="meio-de-semana.html" class="cards-inter" target="_blank">
+            <img src="img/vidaeministerio.jpeg" alt="Ícone Meio de Semana" />
+          </a>
+          <a
+            href="fim-de-semana.html"
+            class="cards-inter"
+            id="fim-de-semana"
+            target="_blank"
+          >
+            <img src="img/asentinela.jpeg" alt="Ícone Fim de Semana" />
+          </a>
+
+          <a
+            href="congresso-assembleia.html"
+            class="cards-inter"
+            id="congresso-assembleia"
+            target="_blank"
+          >
+            <img
+              src="img/Captura de tela 2026-05-29 183737.png"
+              alt="Ícone Congresso / Assembleia"
+            />
+          </a>
+
+          <a
+            href="reuniao-especial.html"
+            class="cards-inter"
+            id="especial"
+            target="_blank"
+          >
+            <img src="img/reuniãopioneiros.ba-46.jpeg" alt="Ícone Especial" />
+          </a>
+          <a
+            href="pioneiros-regulares.html"
+            class="cards-inter"
+            id="especial"
+            target="_blank"
+          >
+            <img src="img/pioneiros.png" alt="Ícone livro dos pioneiros" />
+          </a>
+        </div>
+      </div>
+
+      <div class="card" id="anuncios">Para o Grupo</div>
+      <div class="card card-atividades" id="minhas-atividades">
+        <div class="atividades-header">
+          <h3>Minhas Atividades</h3>
+          <div class="atividades-controles">
+            <button
+              type="button"
+              id="btn-atividades-anterior"
+              class="btn-atividades-nav"
             >
-              <img
-                src="img/Captura de tela 2026-05-29 183737.png"
-                alt="Ícone Congresso / Assembleia"
+              ◀
+            </button>
+            <span
+              class="atividades-resumo-mes"
+              id="mes-atividades-display"
+            ></span>
+            <button
+              type="button"
+              id="btn-atividades-proximo"
+              class="btn-atividades-nav"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+
+        <div class="atividades-resumo">
+          <span class="atividades-total-wrapper">
+            Total do mês:
+            <strong id="total-mes-atividades" class="atividades-total-botao"
+              >0h</strong
+            >
+          </span>
+        </div>
+
+        <div class="atividades-progresso">
+          <div class="atividades-barra">
+            <div
+              class="atividades-barra-fill"
+              id="barra-progresso-atividades"
+            ></div>
+          </div>
+          <span class="atividades-progresso-valor" id="progresso-mes-atividades"
+            >0%</span
+          >
+        </div>
+
+        <div class="atividades-rail" id="atividades-mes"></div>
+
+        <div class="atividades-acoes">
+          <button
+            type="button"
+            id="btn-limpar-mes-atividades"
+            class="btn-atividades-acoes"
+          >
+            Limpar Dia
+          </button>
+          <button
+            type="button"
+            id="btn-copiar-resumo-atividades"
+            class="btn-atividades-acoes btn-atividades-acoes-secundario"
+          >
+            Copiar resumo
+          </button>
+        </div>
+
+        <div class="atividades-historico">
+          <h4>Histórico</h4>
+          <div id="historico-meses-atividades"></div>
+        </div>
+      </div>
+
+      <div class="card" id="relatorio"></div>
+      <div id="form-container" style="display: none">
+        <form id="formulario">
+          <fieldset>
+            <legend>Relatório</legend>
+            <div class="form-group">
+              <label for="nome">Nome:</label>
+              <input type="text" id="nome" name="nome" required />
+            </div>
+
+            <div class="form-group">
+              <label for="mes">Mês:</label>
+              <input type="month" id="mes" name="mes" required />
+            </div>
+
+            <div class="form-group">
+              <label>
+                PUBLICADOR: Participou em Alguma Modalidade do Ministério este
+                Mês?
+                <input type="checkbox" id="publicador" name="publicador" />
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label for="pioneiroAux">Pioneiro Auxiliar (horas):</label>
+              <input
+                type="number"
+                id="pioneiroAux"
+                name="pioneiroAux"
+                min="0"
               />
-            </a>
+            </div>
 
-            <a
-              href="reuniao-especial.html"
-              class="cards-inter"
-              id="especial"
-              target="_blank"
-              >
-              <img src="img/reuniãopioneiros.ba-46.jpeg" alt="Ícone Especial" />
-              </a
-            >
-            <a
-              href="pioneiros-regulares.html"
-              class="cards-inter"
-              id="especial"
-              target="_blank"
-            >
-              <img src="img/pioneiros.png" alt="Ícone livro dos pioneiros" />
-            </a>
-          </div>
-        </div>
+            <div class="form-group">
+              <label for="pioneiroReg">Pioneiro Regular (horas):</label>
+              <input
+                type="number"
+                id="pioneiroReg"
+                name="pioneiroReg"
+                min="0"
+              />
+            </div>
 
-        <div class="card" id="anuncios">Anúncios</div>
-        <div class="card">Novidades</div>
-
-        <div class="card" id="relatorio"></div>
-        <div id="form-container" style="display: none">
-          <form id="formulario">
-            <fieldset>
-              <legend>Relatório</legend>
-              <div class="form-group">
-                <label for="nome">Nome:</label>
-                <input type="text" id="nome" name="nome" required />
-              </div>
-
-              <div class="form-group">
-                <label for="mes">Mês:</label>
-                <input type="month" id="mes" name="mes" required />
-              </div>
-
-              <div class="form-group">
-                <label>
-                  PUBLICADOR: Participou em Alguma Modalidade do Ministério este
-                  Mês?
-                  <input type="checkbox" id="publicador" name="publicador" />
-                </label>
-              </div>
-
-              <div class="form-group">
-                <label for="pioneiroAux">Pioneiro Auxiliar (horas):</label>
-                <input
-                  type="number"
-                  id="pioneiroAux"
-                  name="pioneiroAux"
-                  min="0"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="pioneiroReg">Pioneiro Regular (horas):</label>
-                <input
-                  type="number"
-                  id="pioneiroReg"
-                  name="pioneiroReg"
-                  min="0"
-                />
-              </div>
-
-              <div class="form-group">
-                <textarea
-                  placeholder="Observações:"
-                  name="obs"
-                  rows="4"
-                  cols="40"
-                ></textarea>
-              </div>
-              <p id="mensagem" style="color: red; font-weight: bold"></p>
-              <div id="botoes">
-                <button type="reset" id="limpar">Limpar</button>
-                <button type="submit">Enviar</button>
-              </div>
-            </fieldset>
-          </form>
-        </div>
-      </main>
-
-      <!-- Agenda Modal -->
-      <div id="agendaModal" style="display: none">
-        <h5 id="agendaDia">Anotações do dia</h5>
-        <textarea
-          placeholder="Anotações do dia:"
-          id="nota"
-          rows="5"
-          style="width: 100%"
-        ></textarea>
-        <button onclick="salvarNota()">Salvar</button>
-        <button onclick="fecharAgenda()">Fechar</button>
+            <div class="form-group">
+              <textarea
+                placeholder="Observações:"
+                name="obs"
+                rows="4"
+                cols="40"
+              ></textarea>
+            </div>
+            <p id="mensagem" style="color: red; font-weight: bold"></p>
+            <div id="botoes">
+              <button type="reset" id="limpar">Limpar</button>
+              <button type="submit">Enviar</button>
+            </div>
+          </fieldset>
+        </form>
       </div>
+    </main>
 
-      <footer>
-        <h6 id="novidades">Novidades</h6>
-      </footer>
-      <!-- Modal de Agendamento de Lembretes -->
+    <!-- Agenda Modal -->
+    <div id="agendaModal" style="display: none">
+      <h5 id="agendaDia">Anotações do dia</h5>
+      <textarea
+        placeholder="Anotações do dia:"
+        id="nota"
+        rows="5"
+        style="width: 100%"
+      ></textarea>
+      <button onclick="salvarNota()">Salvar</button>
+      <button onclick="fecharAgenda()">Fechar</button>
+    </div>
+
+    <footer>
+      <h6 id="novidades">
+        <a href="https://wol.jw.org/pt/wol/d/r5/lp-t/1201038"
+          >Instruções para a Reunião Nossa Vida e Ministério Cristão</a
+        >
+      </h6>
+    </footer>
+
+    <!-- Modal de Agendamento de Lembretes -->
     <div id="modal-agenda" class="modal-oculto">
-    <div class="modal-conteudo">
-       <h3 style="color: #333; margin-top: 0;">Novo Lembrete</h3>
-    
-       <label for="data-hora-lembrete" style="color: #333;">Quando devo avisar?</label>
-       <input type="datetime-local" id="data-hora-lembrete">
-    
-       <label for="mensagem-lembrete" style="color: #333;">Qual é o aviso?</label>
-       <input type="text" id="mensagem-lembrete" placeholder="Ex: Reunião com a congregação">
-    
-       <!-- NOVO CAMPO: ANOTAÇÕES -->
-       <label for="anotacoes-lembrete" style="color: #333;">Anotações (opcional):</label>
-       <textarea id="anotacoes-lembrete" rows="4" placeholder="Digite aqui os detalhes extras, números, textos..."></textarea>
-    
-    <div class="modal-botoes">
-      <button class="btn-salvar" onclick="salvarLembrete()">Salvar Lembrete</button>
-      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+      <div class="modal-conteudo">
+        <h3 style="color: #333; margin-top: 0">Novo Lembrete</h3>
+
+        <label for="data-hora-lembrete" style="color: #333"
+          >Quando devo avisar?</label
+        >
+        <input type="datetime-local" id="data-hora-lembrete" />
+
+        <label for="mensagem-lembrete" style="color: #333"
+          >Qual é o aviso?</label
+        >
+        <input
+          type="text"
+          id="mensagem-lembrete"
+          placeholder="Ex: Reunião com a congregação"
+        />
+
+        <!-- NOVO CAMPO: ANOTAÇÕES -->
+        <label for="anotacoes-lembrete" style="color: #333"
+          >Anotações (opcional):</label
+        >
+        <textarea
+          id="anotacoes-lembrete"
+          rows="4"
+          placeholder="Digite aqui os detalhes extras, números, textos..."
+        ></textarea>
+
+        <div class="modal-botoes">
+          <button class="btn-salvar" onclick="salvarLembrete()">
+            Salvar Lembrete
+          </button>
+          <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+        </div>
+      </div>
     </div>
-    </div>
-    </div>
-    
-      <script src="script.js"></script>
-    </body>
-  </html>
+
+    <script src="script.js"></script>
+  </body>
 </html>

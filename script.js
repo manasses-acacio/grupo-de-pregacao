@@ -1,6 +1,3 @@
-// ==========================================
-// 1. O SEU RELÓGIO (Não mexemos aqui)
-// ==========================================
 function atualizarTempo() {
   const agora = new Date();
   const opcoesData = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -108,7 +105,425 @@ document.getElementById("btn-mes-proximo").addEventListener("click", () => {
 gerarCalendario();
 
 // ==========================================
-// 3. A NOVA AGENDA (O modelo que você gostou)
+// 3. REGISTRO DE ATIVIDADES MENSAL
+// ==========================================
+
+const chaveRegistroAtividades = 'minhasAtividadesRegistro';
+const tiposServicoAtividades = ['Campo', 'Reunião', 'Estudo', 'Publicação', 'Outro'];
+let viewMesAtividades = new Date();
+let mesAtividadesAtual = viewMesAtividades.getMonth();
+let anoAtividadesAtual = viewMesAtividades.getFullYear();
+
+function carregarRegistrosAtividades() {
+  try {
+    return JSON.parse(localStorage.getItem(chaveRegistroAtividades)) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function salvarRegistrosAtividades(registros) {
+  localStorage.setItem(chaveRegistroAtividades, JSON.stringify(registros));
+}
+
+function gerarChaveDiaAtividades(ano, mes, dia) {
+  return `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+}
+
+
+
+function atualizarRegistroAtividade(elemento) {
+  const chaveDia = elemento.dataset.dia;
+  const periodo = elemento.dataset.periodo;
+  const registros = carregarRegistrosAtividades();
+
+  if (!registros[chaveDia]) {
+    registros[chaveDia] = {
+      manha: { servico: '', horas: '' },
+      tarde: { servico: '', horas: '' }
+    };
+  }
+
+  if (elemento.classList.contains('atividade-select')) {
+    registros[chaveDia][periodo].servico = elemento.value;
+  } else {
+    const valor = elemento.value === '' ? '' : Number(elemento.value);
+    registros[chaveDia][periodo].horas = valor;
+  }
+
+  salvarRegistrosAtividades(registros);
+  renderizarAtividades();
+}
+
+function limparDiaAtividades() {
+  const diaTexto = prompt('Qual dia deste mês você deseja limpar? (Digite um número, ex: 15)');
+  
+  if (!diaTexto) return; // Se o usuário clicar em Cancelar, não faz nada
+  
+  const dia = Number(diaTexto);
+  const ultimoDia = new Date(anoAtividadesAtual, mesAtividadesAtual + 1, 0).getDate();
+  
+  if (isNaN(dia) || dia < 1 || dia > ultimoDia) {
+    alert('Dia inválido.');
+    return;
+  }
+
+  const confirmar = confirm(`Tem certeza que deseja limpar TODAS as atividades do dia ${dia}?`);
+  if (!confirmar) return;
+
+  const registros = carregarRegistrosAtividades();
+  const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
+
+  if (registros[chaveDia]) {
+    delete registros[chaveDia]; // Apaga o registro do dia escolhido
+    salvarRegistrosAtividades(registros); // Salva as alterações
+    renderizarAtividades(); // Atualiza a tela
+    alert(`O dia ${dia} foi limpo com sucesso!`);
+  } else {
+    alert(`O dia ${dia} já estava vazio.`);
+  }
+}
+
+function copiarResumoAtividades() {
+  const registros = carregarRegistrosAtividades();
+  const resumo = [];
+  const nomeMes = new Date(anoAtividadesAtual, mesAtividadesAtual).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+  for (let dia = 1; dia <= new Date(anoAtividadesAtual, mesAtividadesAtual + 1, 0).getDate(); dia++) {
+    const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
+    const registroDia = registros[chaveDia] || {
+      manha: { servico: '', horas: '' },
+      tarde: { servico: '', horas: '' }
+    };
+
+    const totalDia = Number(registroDia.manha.horas || 0) + Number(registroDia.tarde.horas || 0);
+    if (totalDia > 0) {
+      resumo.push(`${dia}/${mesAtividadesAtual + 1}: Manhã ${registroDia.manha.servico || '-'} ${registroDia.manha.horas || 0}h | Tarde ${registroDia.tarde.servico || '-'} ${registroDia.tarde.horas || 0}h | Total ${totalDia.toFixed(1)}h`);
+    }
+  }
+
+  const texto = [`Resumo de ${nomeMes}`, '', ...resumo].join('\n');
+
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('Resumo copiado para a área de transferência.');
+  }).catch(() => {
+    alert('Não foi possível copiar o resumo.');
+  });
+}
+
+function renderizarAtividades() {
+  const container = document.getElementById('atividades-mes');
+  if (!container) return; // Só para se o container principal não existir
+
+  const journalContainer = document.getElementById('atividades-journal');
+  const checklistContainer = document.getElementById('atividades-checklist');
+  const historicoContainer = document.getElementById('atividades-historico');
+  const semanalContainer = document.getElementById('atividades-semanal');
+  const totalMesElemento = document.getElementById('total-mes-atividades');
+  const legendaMesElemento = document.getElementById('mes-atividades-display');
+  const resumoTiposElemento = document.getElementById('resumo-tipos-atividades');
+  const diasPreenchidosElemento = document.getElementById('dias-preenchidos-atividades');
+  const diasVaziosElemento = document.getElementById('dias-vazios-atividades');
+  const progressoMesElemento = document.getElementById('progresso-mes-atividades');
+  const barraProgressoElemento = document.getElementById('barra-progresso-atividades');
+  const mediaDiariaElemento = document.getElementById('media-diaria-atividades');
+
+  const registros = carregarRegistrosAtividades();
+  const ultimoDia = new Date(anoAtividadesAtual, mesAtividadesAtual + 1, 0).getDate();
+  const nomeMes = new Date(anoAtividadesAtual, mesAtividadesAtual).toLocaleDateString('pt-BR', {
+    month: 'long',
+    year: 'numeric'
+  });
+
+  if (legendaMesElemento) legendaMesElemento.textContent = nomeMes;
+  container.innerHTML = '';
+  if (journalContainer) journalContainer.innerHTML = '';
+  if (checklistContainer) checklistContainer.innerHTML = '';
+  if (historicoContainer) historicoContainer.innerHTML = '';
+  if (semanalContainer) semanalContainer.innerHTML = '';
+
+  let totalHorasMes = 0;
+  const resumoPorTipo = {};
+  let diasPreenchidos = 0;
+  let diasVazios = 0;
+
+  for (let dia = 1; dia <= ultimoDia; dia++) {
+    const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
+    const registroDia = registros[chaveDia] || {
+      manha: { servico: '', horas: '' },
+      tarde: { servico: '', horas: '' }
+    };
+
+    const totalDia = Number(registroDia.manha.horas || 0) + Number(registroDia.tarde.horas || 0);
+    totalHorasMes += totalDia;
+
+    if (totalDia > 0) {
+      diasPreenchidos++;
+    } else {
+      diasVazios++;
+    }
+
+    [registroDia.manha, registroDia.tarde].forEach((periodo) => {
+      if (periodo.servico) {
+        resumoPorTipo[periodo.servico] = (resumoPorTipo[periodo.servico] || 0) + Number(periodo.horas || 0);
+      }
+    });
+
+    const linha = document.createElement('div');
+    linha.className = 'atividade-linha';
+
+    const hoje = new Date();
+    if (dia === hoje.getDate() && mesAtividadesAtual === hoje.getMonth() && anoAtividadesAtual === hoje.getFullYear()) {
+      linha.classList.add('hoje');
+    }
+
+    if (totalDia > 0) {
+      const temManha = Number(registroDia.manha.horas || 0) > 0;
+      const temTarde = Number(registroDia.tarde.horas || 0) > 0;
+      if (temManha && temTarde) {
+        linha.classList.add('completo');
+      } else {
+        linha.classList.add('parcial');
+      }
+    } else {
+      linha.classList.add('vazio');
+    }
+
+    linha.innerHTML = `
+      <div class="atividade-dia-numero">${dia}</div>
+      <div>
+        <div class="atividade-linha-label">Manhã</div>
+        <select class="atividade-select" data-dia="${chaveDia}" data-periodo="manha">
+          <option value="">Tipo</option>
+          ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.manha.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="atividade-linha-label">Horas</div>
+        <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.manha.horas ?? ''}" data-dia="${chaveDia}" data-periodo="manha" placeholder="h">
+      </div>
+      <div>
+        <div class="atividade-linha-label">Tarde</div>
+        <select class="atividade-select" data-dia="${chaveDia}" data-periodo="tarde">
+          <option value="">Tipo</option>
+          ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.tarde.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="atividade-linha-label">Horas</div>
+        <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.tarde.horas ?? ''}" data-dia="${chaveDia}" data-periodo="tarde" placeholder="h">
+      </div>
+      <div class="atividade-linha-total">${totalDia.toFixed(1)}h</div>
+    `;
+
+    container.appendChild(linha);
+
+    if (journalContainer) {
+      const cardJournal = document.createElement('div');
+      cardJournal.className = 'atividade-journal-card';
+      const nota = registroDia.nota || '';
+      cardJournal.innerHTML = `
+        <div class="atividade-journal-topo">
+          <span>Dia ${dia}</span>
+          <span>${totalDia.toFixed(1)}h</span>
+        </div>
+        <div class="atividade-journal-resumo">
+          <span class="atividade-journal-chip">Manhã: ${registroDia.manha.servico || '—'} ${registroDia.manha.horas || 0}h</span>
+          <span class="atividade-journal-chip">Tarde: ${registroDia.tarde.servico || '—'} ${registroDia.tarde.horas || 0}h</span>
+        </div>
+        <textarea class="atividade-journal-nota" data-dia="${chaveDia}" placeholder="Escreva uma observação para este dia...">${nota}</textarea>
+      `;
+      journalContainer.appendChild(cardJournal);
+    }
+
+    if (checklistContainer) {
+      const checklistItem = document.createElement('div');
+      checklistItem.className = 'atividade-checklist-item';
+      checklistItem.innerHTML = `
+        <span>Dia ${dia} • ${registroDia.manha.servico || '—'} / ${registroDia.tarde.servico || '—'}</span>
+        <strong>${totalDia.toFixed(1)}h</strong>
+      `;
+      checklistContainer.appendChild(checklistItem);
+    }
+
+    if (historicoContainer) {
+      const historicoItem = document.createElement('div');
+      historicoItem.className = 'atividade-historico-item';
+      historicoItem.innerHTML = `<strong>${dia}/${mesAtividadesAtual + 1}</strong><br>${registroDia.manha.servico || '—'} (${registroDia.manha.horas || 0}h) • ${registroDia.tarde.servico || '—'} (${registroDia.tarde.horas || 0}h) • Total ${totalDia.toFixed(1)}h`;
+      historicoContainer.appendChild(historicoItem);
+    }
+  }
+
+  if (semanalContainer) {
+    const semanas = [];
+    let semanaAtual = [];
+    for (let dia = 1; dia <= ultimoDia; dia++) {
+      const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
+      const registroDia = registros[chaveDia] || { manha: { servico: '', horas: '' }, tarde: { servico: '', horas: '' } };
+      const totalDia = Number(registroDia.manha.horas || 0) + Number(registroDia.tarde.horas || 0);
+      semanaAtual.push({ dia, totalDia });
+      if (semanaAtual.length === 7 || dia === ultimoDia) {
+        semanas.push(semanaAtual);
+        semanaAtual = [];
+      }
+    }
+
+    semanas.forEach((grupo, index) => {
+      const totalSemana = grupo.reduce((sum, item) => sum + item.totalDia, 0);
+      const item = document.createElement('div');
+      item.className = 'atividade-semana-item';
+      item.innerHTML = `<span>Semana ${index + 1}</span><strong>${totalSemana.toFixed(1)}h</strong>`;
+      semanalContainer.appendChild(item);
+    });
+  }
+
+  const itensResumo = Object.entries(resumoPorTipo)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([tipo, horas]) => `<span class="resumo-tipo-item">${tipo}: ${horas.toFixed(1)}h</span>`)
+    .join('');
+
+  if (resumoTiposElemento) resumoTiposElemento.innerHTML = itensResumo || '<span class="resumo-tipo-item">Nenhum serviço registrado</span>';
+  if (totalMesElemento) totalMesElemento.textContent = `${totalHorasMes.toFixed(1)}h`;
+  if (diasPreenchidosElemento) diasPreenchidosElemento.textContent = diasPreenchidos;
+  if (diasVaziosElemento) diasVaziosElemento.textContent = diasVazios;
+
+  const totalDiasMes = ultimoDia;
+  const percentual = totalDiasMes > 0 ? Math.round((diasPreenchidos / totalDiasMes) * 100) : 0;
+  if (progressoMesElemento) progressoMesElemento.textContent = `${percentual}%`;
+  if (barraProgressoElemento) barraProgressoElemento.style.width = `${percentual}%`;
+  if (mediaDiariaElemento) mediaDiariaElemento.textContent = `${(totalHorasMes / Math.max(diasPreenchidos, 1)).toFixed(1)}h`;
+}
+
+function salvarAtividadeRapida() {
+  const diaEl = document.getElementById('selecionar-dia-atividade');
+  const servicoEl = document.getElementById('servico-rapido-atividade');
+  const horasEl = document.getElementById('horas-rapido-atividade');
+  const periodoEl = document.getElementById('periodo-rapido-atividade');
+
+  // Proteção: Se o HTML da atividade rápida não existir, não faz nada
+  if (!diaEl || !servicoEl || !horasEl || !periodoEl) return;
+
+  const dia = Number(diaEl.value);
+  const servico = servicoEl.value;
+  const horas = horasEl.value;
+  const periodo = periodoEl.value;
+
+  if (!dia || !servico || !horas) {
+    alert('Preencha dia, serviço e horas para salvar.');
+    return;
+  }
+
+  if (dia < 1 || dia > new Date(anoAtividadesAtual, mesAtividadesAtual + 1, 0).getDate()) {
+    alert('Dia inválido para este mês.');
+    return;
+  }
+
+  const registros = carregarRegistrosAtividades();
+  const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
+
+  if (!registros[chaveDia]) {
+    registros[chaveDia] = {
+      manha: { servico: '', horas: '' },
+      tarde: { servico: '', horas: '' }
+    };
+  }
+
+  registros[chaveDia][periodo] = {
+    servico,
+    horas: Number(horas)
+  };
+
+  salvarRegistrosAtividades(registros);
+  renderizarAtividades();
+
+  diaEl.value = '';
+  servicoEl.value = '';
+  horasEl.value = '';
+  periodoEl.value = 'manha';
+}
+
+function inicializarAtividades() {
+  const container = document.getElementById('atividades-mes');
+  if (!container) {
+    return;
+  }
+
+  // Usamos "?." para que, se o botão não existir no HTML, o JS ignore em vez de travar tudo.
+  document.getElementById('btn-atividades-anterior')?.addEventListener('click', () => {
+    mesAtividadesAtual--;
+    if (mesAtividadesAtual < 0) {
+      mesAtividadesAtual = 11;
+      anoAtividadesAtual--;
+    }
+    renderizarAtividades();
+  });
+
+  document.getElementById('btn-atividades-proximo')?.addEventListener('click', () => {
+    mesAtividadesAtual++;
+    if (mesAtividadesAtual > 11) {
+      mesAtividadesAtual = 0;
+      anoAtividadesAtual++;
+    }
+    renderizarAtividades();
+  });
+
+   document.getElementById('btn-limpar-mes-atividades')?.addEventListener('click', () => {
+    limparDiaAtividades();
+  });
+
+  document.getElementById('btn-copiar-resumo-atividades')?.addEventListener('click', () => {
+    copiarResumoAtividades();
+  });
+
+  document.getElementById('btn-salvar-atividade-rapida')?.addEventListener('click', () => {
+    salvarAtividadeRapida();
+  });
+
+  document.getElementById('btn-mostrar-checklist')?.addEventListener('click', () => {
+    const journal = document.getElementById('atividades-journal');
+    const checklist = document.getElementById('atividades-checklist');
+    const historico = document.getElementById('atividades-historico');
+    if (journal) journal.style.display = 'none';
+    if (checklist) checklist.style.display = 'flex';
+    if (historico) historico.style.display = 'none';
+  });
+
+  document.getElementById('btn-mostrar-historico')?.addEventListener('click', () => {
+    const journal = document.getElementById('atividades-journal');
+    const checklist = document.getElementById('atividades-checklist');
+    const historico = document.getElementById('atividades-historico');
+    const semanal = document.getElementById('atividades-semanal');
+    if (journal) journal.style.display = 'none';
+    if (checklist) checklist.style.display = 'none';
+    if (historico) historico.style.display = 'flex';
+    if (semanal) semanal.style.display = 'none';
+  });
+
+  document.getElementById('btn-mostrar-semanal')?.addEventListener('click', () => {
+    const journal = document.getElementById('atividades-journal');
+    const checklist = document.getElementById('atividades-checklist');
+    const historico = document.getElementById('atividades-historico');
+    const semanal = document.getElementById('atividades-semanal');
+    if (journal) journal.style.display = 'none';
+    if (checklist) checklist.style.display = 'none';
+    if (historico) historico.style.display = 'none';
+    if (semanal) semanal.style.display = 'flex';
+  });
+
+  container.addEventListener('change', (event) => {
+    if (event.target.classList.contains('atividade-select') || event.target.classList.contains('atividade-input')) {
+      atualizarRegistroAtividade(event.target);
+    }
+  });
+
+  renderizarAtividades();
+}
+
+
+inicializarAtividades();
+
+// ==========================================
+// 4. A NOVA AGENDA (O modelo que você gostou)
 // ==========================================
 
 // Ao clicar em qualquer lugar do calendário, abre o modal
