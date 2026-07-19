@@ -95,8 +95,13 @@
 
       <div class="card" id="anuncios">Para o Grupo</div>
       <div class="card card-atividades" id="minhas-atividades">
+        <!-- 1. Título centralizado sozinho na linha -->
         <div class="atividades-header">
           <h3>Minhas Atividades</h3>
+        </div>
+
+        <!-- 2. Mês e Total na mesma linha logo abaixo -->
+        <div class="atividades-resumo">
           <div class="atividades-controles">
             <button
               type="button"
@@ -117,11 +122,9 @@
               ▶
             </button>
           </div>
-        </div>
 
-        <div class="atividades-resumo">
           <span class="atividades-total-wrapper">
-            Total do mês:
+            Horas do mês:
             <strong id="total-mes-atividades" class="atividades-total-botao"
               >0h</strong
             >
@@ -155,7 +158,7 @@
             id="btn-copiar-resumo-atividades"
             class="btn-atividades-acoes btn-atividades-acoes-secundario"
           >
-            Copiar resumo
+            Copiar Resumo
           </button>
         </div>
 
@@ -239,14 +242,6 @@
       <button onclick="fecharAgenda()">Fechar</button>
     </div>
 
-    <footer>
-      <h6 id="novidades">
-        <a href="https://wol.jw.org/pt/wol/d/r5/lp-t/1201038"
-          >Instruções para a Reunião Nossa Vida e Ministério Cristão</a
-        >
-      </h6>
-    </footer>
-
     <!-- Modal de Agendamento de Lembretes -->
     <div id="modal-agenda" class="modal-oculto">
       <div class="modal-conteudo">
@@ -284,6 +279,14 @@
         </div>
       </div>
     </div>
+
+    <footer>
+      <h6 id="novidades">
+        <a href="https://wol.jw.org/pt/wol/d/r5/lp-t/1201038"
+          >Instruções para a Reunião Nossa Vida e Ministério Cristão</a
+        >
+      </h6>
+    </footer>
 
     <script src="script.js"></script>
   </body>

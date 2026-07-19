@@ -109,7 +109,7 @@ gerarCalendario();
 // ==========================================
 
 const chaveRegistroAtividades = 'minhasAtividadesRegistro';
-const tiposServicoAtividades = ['Campo', 'Reunião', 'Estudo', 'Publicação', 'Outro'];
+const tiposServicoAtividades = ['Campo', 'Estudo', 'Carrinho', 'Informal','Outro'];
 let viewMesAtividades = new Date();
 let mesAtividadesAtual = viewMesAtividades.getMonth();
 let anoAtividadesAtual = viewMesAtividades.getFullYear();
@@ -285,35 +285,32 @@ function renderizarAtividades() {
       } else {
         linha.classList.add('parcial');
       }
-    } else {
+        } else {
       linha.classList.add('vazio');
     }
 
+    // Verifica se o dia atual do laço é um domingo (0 = Domingo)
+    const dataDesseDia = new Date(anoAtividadesAtual, mesAtividadesAtual, dia);
+    const estiloDomingo = dataDesseDia.getDay() === 0 ? 'style="background-color: red; font-weight: bold;"' : '';
+
     linha.innerHTML = `
-      <div class="atividade-dia-numero">${dia}</div>
-      <div>
-        <div class="atividade-linha-label">Manhã</div>
+      <div class="atividade-dia-numero" ${estiloDomingo}>${dia}</div>
+      
+      <div class="atividade-periodo">
         <select class="atividade-select" data-dia="${chaveDia}" data-periodo="manha">
-          <option value="">Tipo</option>
+          <option value="">Manhã</option>
           ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.manha.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
         </select>
-      </div>
-      <div>
-        <div class="atividade-linha-label">Horas</div>
         <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.manha.horas ?? ''}" data-dia="${chaveDia}" data-periodo="manha" placeholder="h">
       </div>
-      <div>
-        <div class="atividade-linha-label">Tarde</div>
+
+      <div class="atividade-periodo">
         <select class="atividade-select" data-dia="${chaveDia}" data-periodo="tarde">
-          <option value="">Tipo</option>
+          <option value="">Tarde</option>
           ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.tarde.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
         </select>
-      </div>
-      <div>
-        <div class="atividade-linha-label">Horas</div>
         <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.tarde.horas ?? ''}" data-dia="${chaveDia}" data-periodo="tarde" placeholder="h">
       </div>
-      <div class="atividade-linha-total">${totalDia.toFixed(1)}h</div>
     `;
 
     container.appendChild(linha);
@@ -383,14 +380,31 @@ function renderizarAtividades() {
     .join('');
 
   if (resumoTiposElemento) resumoTiposElemento.innerHTML = itensResumo || '<span class="resumo-tipo-item">Nenhum serviço registrado</span>';
-  if (totalMesElemento) totalMesElemento.textContent = `${totalHorasMes.toFixed(1)}h`;
+  if (totalMesElemento) totalMesElemento.textContent = `${totalHorasMes.toFixed(1)} h`;
   if (diasPreenchidosElemento) diasPreenchidosElemento.textContent = diasPreenchidos;
   if (diasVaziosElemento) diasVaziosElemento.textContent = diasVazios;
 
-  const totalDiasMes = ultimoDia;
-  const percentual = totalDiasMes > 0 ? Math.round((diasPreenchidos / totalDiasMes) * 100) : 0;
+    // --- INÍCIO DA BARRA DE PROGRESSO DE HORAS ---
+  const META_DE_HORAS = 50; // <--- COLOQUE AQUI A SUA META DE HORAS
+  
+  const percentual = META_DE_HORAS > 0 ? Math.round((totalHorasMes / META_DE_HORAS) * 100) : 0;
+  
   if (progressoMesElemento) progressoMesElemento.textContent = `${percentual}%`;
-  if (barraProgressoElemento) barraProgressoElemento.style.width = `${percentual}%`;
+  
+  if (barraProgressoElemento) {
+    if (percentual <= 100) {
+      // Se não bateu a meta, a barra cresce normal, toda em azul
+      barraProgressoElemento.style.width = `${percentual}%`;
+      barraProgressoElemento.style.background = 'linear-gradient(90deg, #4b2fb5 0%, #7c6fd6 100%)';
+    } else {
+      // Se passou da meta, a barra enche 100% e dividimos as cores: azul (meta) e verde (extra)
+      barraProgressoElemento.style.width = '100%';
+      const limiteAzul = (100 / percentual) * 100;
+      barraProgressoElemento.style.background = `linear-gradient(90deg, #4b2fb5 0%, #7c6fd6 ${limiteAzul}%, #10b981 ${limiteAzul}%, #059669 100%)`;
+    }
+  }
+  // --- FIM DA BARRA DE PROGRESSO DE HORAS ---
+ 
   if (mediaDiariaElemento) mediaDiariaElemento.textContent = `${(totalHorasMes / Math.max(diasPreenchidos, 1)).toFixed(1)}h`;
 }
 
@@ -698,4 +712,17 @@ document.getElementById("nome").addEventListener("input", function() {
     campoPioneiroAux.disabled = false;
     campoPublicador.disabled = false;
   }
+});
+// --- AUTO SCROLL PARA O DIA ATUAL (COLE NO FINAL DO ARQUIVO) ---
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const diaAtualEl = document.querySelector('#atividades-mes .hoje');
+    if (diaAtualEl) {
+      diaAtualEl.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest', 
+        inline: 'center' 
+      });
+    }
+  }, 500);
 });
