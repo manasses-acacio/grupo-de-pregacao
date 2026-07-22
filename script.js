@@ -220,7 +220,6 @@ function renderizarAtividades() {
   const historicoContainer = document.getElementById('atividades-historico');
   const semanalContainer = document.getElementById('atividades-semanal');
   const totalMesElemento = document.getElementById('total-mes-atividades');
-  const legendaMesElemento = document.getElementById('mes-atividades-display');
   const resumoTiposElemento = document.getElementById('resumo-tipos-atividades');
   const diasPreenchidosElemento = document.getElementById('dias-preenchidos-atividades');
   const diasVaziosElemento = document.getElementById('dias-vazios-atividades');
@@ -235,7 +234,7 @@ function renderizarAtividades() {
     year: 'numeric'
   });
 
-  if (legendaMesElemento) legendaMesElemento.textContent = nomeMes;
+  textContent = nomeMes;
   container.innerHTML = '';
   if (journalContainer) journalContainer.innerHTML = '';
   if (checklistContainer) checklistContainer.innerHTML = '';
@@ -462,24 +461,72 @@ function inicializarAtividades() {
     return;
   }
 
-  // Usamos "?." para que, se o botão não existir no HTML, o JS ignore em vez de travar tudo.
-  document.getElementById('btn-atividades-anterior')?.addEventListener('click', () => {
-    mesAtividadesAtual--;
-    if (mesAtividadesAtual < 0) {
-      mesAtividadesAtual = 11;
-      anoAtividadesAtual--;
-    }
-    renderizarAtividades();
-  });
+  const cilindroMes = document.getElementById('cilindro-mes');
+  const cilindroAno = document.getElementById('cilindro-ano');
+  
+  if (!cilindroMes || !cilindroAno) return;
 
-  document.getElementById('btn-atividades-proximo')?.addEventListener('click', () => {
-    mesAtividadesAtual++;
-    if (mesAtividadesAtual > 11) {
-      mesAtividadesAtual = 0;
-      anoAtividadesAtual++;
+  // 1. Array fixo com o nome dos meses em texto
+  const nomesMeses = [
+    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+  ];
+  
+  cilindroMes.innerHTML = nomesMeses
+    .map(mes => `<div class="cylinder-item">${mes}</div>`)
+    .join('');
+
+  // 2. Array infinito de Anos (Gerando de 2020 até 2050, você pode aumentar se quiser)
+  const anosDisponiveis = [];
+  for (let ano = 2020; ano <= 2050; ano++) {
+    anosDisponiveis.push(ano);
+  }
+
+  cilindroAno.innerHTML = anosDisponiveis
+    .map(ano => `<div class="cylinder-item">${ano}</div>`)
+    .join('');
+
+  // 3. Função inteligente que detecta qual roleta girou
+  let scrollTimeout;
+  function aoRolarCilindros() {
+    clearTimeout(scrollTimeout);
+    
+    scrollTimeout = setTimeout(() => {
+      // Descobre quem parou no meio (divide o tanto rolado pela altura de 30px)
+      const indexMes = Math.round(cilindroMes.scrollTop / 30);
+      const indexAno = Math.round(cilindroAno.scrollTop / 30);
+
+      const mesSelecionado = indexMes; // o número do mês bate com o índice (0 a 11)
+      const anoSelecionado = anosDisponiveis[indexAno];
+
+      // Se os valores existirem, atualiza a tela
+      if (mesSelecionado >= 0 && mesSelecionado <= 11 && anoSelecionado !== undefined) {
+        
+        mesAtividadesAtual = mesSelecionado;
+        anoAtividadesAtual = anoSelecionado;
+        
+        // Manda desenhar os dias
+        renderizarAtividades();
+      }
+    }, 150);
+  }
+
+  // Acopla a inteligência nas duas roletas
+  cilindroMes.addEventListener('scroll', aoRolarCilindros);
+  cilindroAno.addEventListener('scroll', aoRolarCilindros);
+
+  // 4. Quando a página carregar, gira a roleta para a data atual de hoje
+  setTimeout(() => {
+    // Posiciona o Mês (ex: 6 = Julho)
+    cilindroMes.scrollTop = mesAtividadesAtual * 30; 
+    
+    // Posiciona o Ano (Calcula quantos passos ele tem que dar desde o 2020)
+    const indexDoAno = anosDisponiveis.indexOf(anoAtividadesAtual);
+    if (indexDoAno !== -1) {
+       cilindroAno.scrollTop = indexDoAno * 30;
     }
-    renderizarAtividades();
-  });
+  }, 150);
+  
 
    document.getElementById('btn-limpar-mes-atividades')?.addEventListener('click', () => {
     limparDiaAtividades();

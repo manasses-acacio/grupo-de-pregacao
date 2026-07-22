@@ -389,7 +389,7 @@ button {
   margin-top: 20px;
   padding: 5px;
   border-radius: 15px;
-  background-color: #afffec;
+  background-color: #6fd696;
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: 5px;
@@ -493,30 +493,105 @@ button:focus {
   text-align: center;
 }
 
-.atividades-controles {
+/* CONTAINER BASE: Mantém a altura fininha (30px) para não esmagar os dias! */
+.dual-cylinder-container {
+  height: 30px;
+  width: 170px;
+  position: relative;
+  z-index: 100;
+}
+
+/* O CILINDRO FECHADO: Fica compacto e mostra apenas a data escolhida */
+.dual-cylinder-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background: transparent;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  overflow: hidden;
+  border-radius: 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* O EFEITO AO PASSAR O MOUSE: Ele "flutua" para fora, revela tudo e aplica o desfoque */
+.dual-cylinder-container:hover .dual-cylinder-wrapper {
+  height: 90px;
+  top: -30px; /* Expande para cima e para baixo, sem empurrar a tela! */
+  background: rgba(255, 255, 255, 0.96); /* Fundo quase sólido para leitura perfeita */
+  box-shadow: 0 4px 15px rgba(75, 47, 181, 0.15); /* Sombra elegante */
+  
+  /* Máscara de desfoque ativada só quando está aberto */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 60%, transparent 100%);
+}
+
+.cylinder-list {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  flex: 1; 
+  padding: 0; /* Fechado = sem margem interna */
+  overflow-anchor: none;
+}
+/* Deixe a lista sem padding para fugir do bug do celular */
+.cylinder-list {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  scroll-behavior: auto;
+  flex: 1; 
+  padding: 0; 
+  overflow-anchor: none;
+}
+
+.cylinder-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Criamos blocos invisíveis no topo e no fundo da lista */
+.cylinder-list::before,
+.cylinder-list::after {
+  content: "";
+  display: block;
+  height: 0;
+}
+/* Quando você toca/passa o mouse, os blocos ganham altura e forçam o celular a liberar espaço */
+.dual-cylinder-container:hover .cylinder-list::before,
+.dual-cylinder-container:active .cylinder-list::before {
+  height: 30px; /* Empurra o primeiro item pro meio */
+}
+
+.dual-cylinder-container:hover .cylinder-list::after,
+.dual-cylinder-container:active .cylinder-list::after {
+  height: 45px; /* Libera espaço de sobra pro Dezembro e pro último ano subirem! */
+}
+
+.cylinder-list::-webkit-scrollbar {
+  display: none;
+}
+
+.cylinder-item {
+  height: 30px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-left: 0;
-  white-space: nowrap;
-}
-
-.btn-atividades-nav {
-  border: none;
-  background: #ede8ff;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #4b2fb5;
-  border-radius: 999px;
-  width: 28px;
-  height: 28px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-#mes-atividades-display {
   text-transform: capitalize;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #4b2fb5;
+  cursor: grab;
+}
+
+.cylinder-item:active {
+  cursor: grabbing;
 }
 
 .atividades-resumo {
