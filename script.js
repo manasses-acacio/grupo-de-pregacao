@@ -661,8 +661,11 @@ const grupoPermitido = ["andré almeida de souza", "alessandra dionisio dos sant
 
 // Alterna formulário
 document.getElementById("relatorio").addEventListener("click", () => {
+  const cardRelatorio = document.getElementById("relatorio");
   const formContainer = document.getElementById("form-container");
-  formContainer.style.display = formContainer.style.display === "none" ? "block" : "none";
+  const abrindo = formContainer.style.display === "none" || formContainer.style.display === "";
+  formContainer.style.display = abrindo ? "block" : "none";
+  cardRelatorio.classList.toggle("form-aberto", abrindo);
 });
 
 // Validação
