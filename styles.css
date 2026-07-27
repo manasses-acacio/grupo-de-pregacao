@@ -314,18 +314,97 @@ h3:hover, h4:hover {
 
 .btn-cancelar { background: #ddd; color: #333; }
 .btn-cancelar:hover { background: #bbb; }
+
 #relatorio {
   background-image:
   linear-gradient(rgba(15, 12, 28, 0.1), rgba(15, 12, 28, 0)),
   url("img/S-4_T1.jpg");
   background-repeat: no-repeat;
   background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 #relatorio:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 15px rgba(0,0,0,0.25);
   cursor: pointer; 
 }
+/* linha de cima */
+#relatorio::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -35%;
+  width: 35%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #32e27a, #8bffb8, transparent);
+  box-shadow: 0 0 8px rgba(50, 226, 122, 0.8);
+  animation: correr-topo 2.4s linear infinite;
+}
+
+/* linha de baixo */
+#relatorio::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: -35%;
+  width: 35%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #32e27a, #8bffb8, transparent);
+  box-shadow: 0 0 8px rgba(50, 226, 122, 0.8);
+  animation: correr-base 2.4s linear infinite;
+}
+
+/* laterais com spans reais */
+#relatorio .borda-esquerda,
+#relatorio .borda-direita {
+  position: absolute;
+  width: 3px;
+  height: 35%;
+  background: linear-gradient(180deg, transparent, #32e27a, #8bffb8, transparent);
+  box-shadow: 0 0 8px rgba(50, 226, 122, 0.8);
+  pointer-events: none;
+}
+
+#relatorio .borda-esquerda {
+  left: 0;
+  top: -35%;
+  animation: correr-esquerda 2.4s linear infinite;
+}
+
+#relatorio .borda-direita {
+  right: 0;
+  bottom: -35%;
+  animation: correr-direita 2.4s linear infinite;
+}
+
+@keyframes correr-topo {
+  0%   { left: -35%; }
+  100% { left: 100%; }
+}
+
+@keyframes correr-base {
+  0%   { right: -35%; }
+  100% { right: 100%; }
+}
+
+@keyframes correr-esquerda {
+  0%   { top: -35%; }
+  100% { top: 100%; }
+}
+
+@keyframes correr-direita {
+  0%   { bottom: -35%; }
+  100% { bottom: 100%; }
+}
+
+@keyframes borda-corrente {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 @keyframes piscar {
   0% { opacity: 1; }
   50% { opacity: 0; }

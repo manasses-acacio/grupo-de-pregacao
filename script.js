@@ -582,11 +582,6 @@ function inicializarAtividades() {
 
 
 inicializarAtividades();
-
-// ==========================================
-// 4. A NOVA AGENDA (O modelo que você gostou)
-// ==========================================
-
 // Ao clicar em qualquer lugar do calendário, abre o modal
 document.getElementById('calendario').addEventListener('click', function() {
     document.getElementById('modal-agenda').style.display = 'flex';
