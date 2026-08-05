@@ -657,7 +657,14 @@ const grupoPermitido = ["andré almeida de souza", "alessandra dionisio dos sant
 // Alterna formulário
 document.getElementById("relatorio").addEventListener("click", () => {
   const formContainer = document.getElementById("form-container");
-  formContainer.style.display = formContainer.style.display === "none" ? "block" : "none";
+  if (!formContainer) return;
+
+  if (formContainer.style.display === "none" || formContainer.style.display === "") {
+    formContainer.style.display = "block";
+    formContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+  } else {
+    formContainer.style.display = "none";
+  }
 });
 
 // Validação
@@ -689,6 +696,13 @@ document.getElementById("formulario").addEventListener("submit", function(event)
     return;
   }
 
+  // Se NÃO for pioneiro regular, precisa marcar publicador ou preencher horas de pioneiro auxiliar
+  if (!pioneirosRegulares.includes(nome) && !document.getElementById("publicador").checked && horasPioneiroAux === "") {
+    document.getElementById("mensagem").innerText = "Marque Publicador ou preencha horas de Pioneiro Auxiliar para enviar o relatório.";
+    document.getElementById("mensagem").style.color = "red";
+    return;
+  }
+
   // Se FOR pioneiro regular, não pode marcar publicador nem preencher Pioneiro Auxiliar
   if (pioneirosRegulares.includes(nome)) {
     // Aqui usamos .checked apenas no publicador, pois ele é do tipo checkbox no HTML
@@ -698,9 +712,8 @@ document.getElementById("formulario").addEventListener("submit", function(event)
       return;
     }
   }
-    // --- ADICIONE ESTE BLOCO ---
 
-    // Impede o Pioneiro Regular de enviar em branco ou com zero horas
+  // Impede o Pioneiro Regular de enviar em branco ou com zero horas
   if (pioneirosRegulares.includes(nome) && (horasPioneiroReg === "" || horasPioneiroReg === "0")) {
     document.getElementById("mensagem").innerText = "Você deve preencher suas horas de Pioneiro Regular Corretamente!";
     
@@ -714,7 +727,7 @@ document.getElementById("formulario").addEventListener("submit", function(event)
   
   // Se passou em todas as regras
   document.getElementById("mensagem").style.color = "green";
-  document.getElementById("mensagem").innerText = "Formulário enviado com sucesso!";
+  document.getElementById("mensagem").innerText = "Relatório enviado com sucesso!";
   this.reset();
 });
 // =========================================================
@@ -755,6 +768,23 @@ document.getElementById("nome").addEventListener("input", function() {
     campoPublicador.disabled = false;
   }
 });
+
+// Mantém pioneiroAux desabilitado quando publicador estiver marcado
+const publicadorCheckbox = document.getElementById('publicador');
+const campoPioneiroAux = document.getElementById('pioneiroAux');
+publicadorCheckbox?.addEventListener('change', function() {
+  if (this.checked) {
+    campoPioneiroAux.disabled = true;
+    campoPioneiroAux.value = '';
+  } else {
+    // Reativa apenas se o nome não for pioneiro regular
+    const nomeDigitado = document.getElementById('nome').value.trim().toLowerCase();
+    if (!pioneirosRegulares.includes(nomeDigitado)) {
+      campoPioneiroAux.disabled = false;
+    }
+  }
+});
+
 // --- AUTO SCROLL PARA O DIA ATUAL (COLE NO FINAL DO ARQUIVO) ---
 window.addEventListener('load', () => {
   setTimeout(() => {

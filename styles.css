@@ -100,6 +100,7 @@ h3:hover, h4:hover {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 2 colunas */
   gap: 20px;
+  align-items: start;
   padding: 20px;
   width: 100%;          /* garante que ocupe toda a largura */
   max-width: 1200px;    /* limite opcional para não ficar muito largo */
@@ -316,22 +317,39 @@ h3:hover, h4:hover {
 .btn-cancelar:hover { background: #bbb; }
 
 #relatorio {
-  background-image:
-  linear-gradient(rgba(15, 12, 28, 0.1), rgba(15, 12, 28, 0)),
-  url("img/S-4_T1.jpg");
-  background-repeat: no-repeat;
-  background-position: center;
+  background: rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: static;
+  overflow: hidden;
 }
 #relatorio:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-  cursor: pointer; 
+  cursor: pointer;
 }
-/* linha de cima */
-#relatorio::before {
+
+#relatorio .relatorio-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+#form-container {
+  width: 100%;
+}
+
+#relatorio .relatorio-image-wrapper img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+#relatorio .relatorio-image-wrapper::before {
   content: "";
   position: absolute;
   top: 0;
@@ -343,8 +361,7 @@ h3:hover, h4:hover {
   animation: correr-topo 2.4s linear infinite;
 }
 
-/* linha de baixo */
-#relatorio::after {
+#relatorio .relatorio-image-wrapper::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -356,7 +373,6 @@ h3:hover, h4:hover {
   animation: correr-base 2.4s linear infinite;
 }
 
-/* laterais com spans reais */
 #relatorio .borda-esquerda,
 #relatorio .borda-direita {
   position: absolute;
@@ -416,39 +432,47 @@ h3:hover, h4:hover {
   animation: piscar 2s infinite;
 }
 
+#form-container {
+  width: 100%;
+  max-width: 540px;
+  margin: 20px auto;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
 #formulario {
   font-style: oblique;
   font-size: larger;
   font-weight: 600;
   align-items: center;
-  border-radius: 20px; 
+  border-radius: 20px;
 }
 @media (max-width: 768px) {
   #formulario {
     grid-template-columns: 1fr;
   }
-
 }
 fieldset {
   text-align: center;
 }
 form {
-  max-width: 600px;
-  margin: 20px auto;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
   padding: 15px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background: #f9f9f9;
+  box-sizing: border-box;
 }
 form label {
-  margin-bottom: 3px; 
-
+  margin-bottom: 3px;
 }
 
 form input,
 form textarea {
-  width: 80%;         
-  margin-bottom: 10px;  
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 input[type="checkbox"] {
