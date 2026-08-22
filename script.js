@@ -110,6 +110,7 @@ gerarCalendario();
 
 const chaveRegistroAtividades = 'minhasAtividadesRegistro';
 const tiposServicoAtividades = ['Campo', 'Estudo', 'Carrinho', 'Informal','Outro'];
+const tiposCreditoHoras = ['Construção ou reforma Salões do Reino', 'Salão de Assembléia', 'Escola de Pioneiro', 'EER', 'Escola para Anciãos'];
 let viewMesAtividades = new Date();
 let mesAtividadesAtual = viewMesAtividades.getMonth();
 let anoAtividadesAtual = viewMesAtividades.getFullYear();
@@ -130,24 +131,44 @@ function gerarChaveDiaAtividades(ano, mes, dia) {
   return `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 }
 
-
+// Normaliza um registro de dia garantindo que sempre tenha os três períodos.
+// Isso é essencial para compatibilidade com registros antigos que não possuíam o campo "credito".
+function normalizarRegistroDia(registroDia) {
+  if (!registroDia || typeof registroDia !== 'object') {
+    return {
+      manha: { servico: '', horas: '' },
+      tarde: { servico: '', horas: '' },
+      credito: { servico: '', horas: '' }
+    };
+  }
+  return {
+    manha: registroDia.manha || { servico: '', horas: '' },
+    tarde: registroDia.tarde || { servico: '', horas: '' },
+    credito: registroDia.credito || { servico: '', horas: '' }
+  };
+}
 
 function atualizarRegistroAtividade(elemento) {
   const chaveDia = elemento.dataset.dia;
   const periodo = elemento.dataset.periodo;
   const registros = carregarRegistrosAtividades();
 
-  if (!registros[chaveDia]) {
-    registros[chaveDia] = {
-      manha: { servico: '', horas: '' },
-      tarde: { servico: '', horas: '' }
-    };
-  }
+  // Normaliza o registro existente (pode ser antigo e não ter o campo "credito")
+  registros[chaveDia] = normalizarRegistroDia(registros[chaveDia]);
 
   if (elemento.classList.contains('atividade-select')) {
     registros[chaveDia][periodo].servico = elemento.value;
   } else {
     const valor = elemento.value === '' ? '' : Number(elemento.value);
+    // Validação: não permite horas iguais a 0
+    if (valor === 0) {
+      alert('O valor de horas deve ser maior que zero.');
+      elemento.value = '';
+      registros[chaveDia][periodo].horas = '';
+      salvarRegistrosAtividades(registros);
+      renderizarAtividades();
+      return;
+    }
     registros[chaveDia][periodo].horas = valor;
   }
 
@@ -191,14 +212,12 @@ function copiarResumoAtividades() {
 
   for (let dia = 1; dia <= new Date(anoAtividadesAtual, mesAtividadesAtual + 1, 0).getDate(); dia++) {
     const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
-    const registroDia = registros[chaveDia] || {
-      manha: { servico: '', horas: '' },
-      tarde: { servico: '', horas: '' }
-    };
+    const registroDia = normalizarRegistroDia(registros[chaveDia]);
 
     const totalDia = Number(registroDia.manha.horas || 0) + Number(registroDia.tarde.horas || 0);
-    if (totalDia > 0) {
-      resumo.push(`${dia}/${mesAtividadesAtual + 1}: Manhã ${registroDia.manha.servico || '-'} ${registroDia.manha.horas || 0}h | Tarde ${registroDia.tarde.servico || '-'} ${registroDia.tarde.horas || 0}h | Total ${totalDia.toFixed(1)}h`);
+    const totalCredito = Number(registroDia.credito.horas || 0);
+    if (totalDia > 0 || totalCredito > 0) {
+      resumo.push(`${dia}/${mesAtividadesAtual + 1}: Manhã ${registroDia.manha.servico || '-'} ${registroDia.manha.horas || 0}h | Tarde ${registroDia.tarde.servico || '-'} ${registroDia.tarde.horas || 0}h | Crédito ${registroDia.credito.servico || '-'} ${registroDia.credito.horas || 0}h | Total ${totalDia.toFixed(1)}h`);
     }
   }
 
@@ -234,7 +253,6 @@ function renderizarAtividades() {
     year: 'numeric'
   });
 
-  textContent = nomeMes;
   container.innerHTML = '';
   if (journalContainer) journalContainer.innerHTML = '';
   if (checklistContainer) checklistContainer.innerHTML = '';
@@ -248,10 +266,7 @@ function renderizarAtividades() {
 
   for (let dia = 1; dia <= ultimoDia; dia++) {
     const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
-    const registroDia = registros[chaveDia] || {
-      manha: { servico: '', horas: '' },
-      tarde: { servico: '', horas: '' }
-    };
+    const registroDia = normalizarRegistroDia(registros[chaveDia]);
 
     const totalDia = Number(registroDia.manha.horas || 0) + Number(registroDia.tarde.horas || 0);
     totalHorasMes += totalDia;
@@ -262,7 +277,7 @@ function renderizarAtividades() {
       diasVazios++;
     }
 
-    [registroDia.manha, registroDia.tarde].forEach((periodo) => {
+    [registroDia.manha, registroDia.tarde, registroDia.credito].forEach((periodo) => {
       if (periodo.servico) {
         resumoPorTipo[periodo.servico] = (resumoPorTipo[periodo.servico] || 0) + Number(periodo.horas || 0);
       }
@@ -300,7 +315,7 @@ function renderizarAtividades() {
           <option value="">Manhã</option>
           ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.manha.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
         </select>
-        <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.manha.horas ?? ''}" data-dia="${chaveDia}" data-periodo="manha" placeholder="h">
+        <input class="atividade-input" type="number" min="0.5" step="0.5" value="${registroDia.manha.horas ?? ''}" data-dia="${chaveDia}" data-periodo="manha" placeholder="h">
       </div>
 
       <div class="atividade-periodo">
@@ -308,7 +323,15 @@ function renderizarAtividades() {
           <option value="">Tarde</option>
           ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.tarde.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
         </select>
-        <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.tarde.horas ?? ''}" data-dia="${chaveDia}" data-periodo="tarde" placeholder="h">
+        <input class="atividade-input" type="number" min="0.5" step="0.5" value="${registroDia.tarde.horas ?? ''}" data-dia="${chaveDia}" data-periodo="tarde" placeholder="h">
+      </div>
+
+      <div class="atividade-periodo">
+        <select class="atividade-select" data-dia="${chaveDia}" data-periodo="credito">
+          <option value="">Crédito de Horas</option>
+          ${tiposCreditoHoras.map((tipo) => `<option value="${tipo}" ${registroDia.credito.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
+        </select>
+        <input class="atividade-input" type="number" min="0.5" step="0.5" value="${registroDia.credito.horas ?? ''}" data-dia="${chaveDia}" data-periodo="credito" placeholder="h">
       </div>
     `;
 
@@ -326,6 +349,7 @@ function renderizarAtividades() {
         <div class="atividade-journal-resumo">
           <span class="atividade-journal-chip">Manhã: ${registroDia.manha.servico || '—'} ${registroDia.manha.horas || 0}h</span>
           <span class="atividade-journal-chip">Tarde: ${registroDia.tarde.servico || '—'} ${registroDia.tarde.horas || 0}h</span>
+          <span class="atividade-journal-chip">Crédito: ${registroDia.credito.servico || '—'} ${registroDia.credito.horas || 0}h</span>
         </div>
         <textarea class="atividade-journal-nota" data-dia="${chaveDia}" placeholder="Escreva uma observação para este dia...">${nota}</textarea>
       `;
@@ -336,7 +360,7 @@ function renderizarAtividades() {
       const checklistItem = document.createElement('div');
       checklistItem.className = 'atividade-checklist-item';
       checklistItem.innerHTML = `
-        <span>Dia ${dia} • ${registroDia.manha.servico || '—'} / ${registroDia.tarde.servico || '—'}</span>
+        <span>Dia ${dia} • ${registroDia.manha.servico || '—'} / ${registroDia.tarde.servico || '—'} / ${registroDia.credito.servico || '—'}</span>
         <strong>${totalDia.toFixed(1)}h</strong>
       `;
       checklistContainer.appendChild(checklistItem);
@@ -345,7 +369,7 @@ function renderizarAtividades() {
     if (historicoContainer) {
       const historicoItem = document.createElement('div');
       historicoItem.className = 'atividade-historico-item';
-      historicoItem.innerHTML = `<strong>${dia}/${mesAtividadesAtual + 1}</strong><br>${registroDia.manha.servico || '—'} (${registroDia.manha.horas || 0}h) • ${registroDia.tarde.servico || '—'} (${registroDia.tarde.horas || 0}h) • Total ${totalDia.toFixed(1)}h`;
+      historicoItem.innerHTML = `<strong>${dia}/${mesAtividadesAtual + 1}</strong><br>${registroDia.manha.servico || '—'} (${registroDia.manha.horas || 0}h) • ${registroDia.tarde.servico || '—'} (${registroDia.tarde.horas || 0}h) • ${registroDia.credito.servico || '—'} (${registroDia.credito.horas || 0}h) • Total ${totalDia.toFixed(1)}h`;
       historicoContainer.appendChild(historicoItem);
     }
   }
@@ -355,7 +379,7 @@ function renderizarAtividades() {
     let semanaAtual = [];
     for (let dia = 1; dia <= ultimoDia; dia++) {
       const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
-      const registroDia = registros[chaveDia] || { manha: { servico: '', horas: '' }, tarde: { servico: '', horas: '' } };
+      const registroDia = normalizarRegistroDia(registros[chaveDia]);
       const totalDia = Number(registroDia.manha.horas || 0) + Number(registroDia.tarde.horas || 0);
       semanaAtual.push({ dia, totalDia });
       if (semanaAtual.length === 7 || dia === ultimoDia) {
@@ -403,6 +427,62 @@ function renderizarAtividades() {
     }
   }
   // --- FIM DA BARRA DE PROGRESSO DE HORAS ---
+
+  // --- INÍCIO DA BARRA DE PROGRESSO ANUAL ---
+  let anoInicio = mesAtividadesAtual >= 8 ? anoAtividadesAtual : anoAtividadesAtual - 1;
+  let totalHorasAno = 0;
+  let mesIndiceAnoServico = (mesAtividadesAtual >= 8) ? mesAtividadesAtual - 7 : mesAtividadesAtual + 5;
+  
+  // O cálculo considera a soma das horas realizadas do início do ano de serviço até o mês corrente
+  for (let m = 0; m < mesIndiceAnoServico; m++) {
+    let mesCalendario = (m + 8) % 12;
+    let anoCalendario = m < 4 ? anoInicio : anoInicio + 1;
+    let ultimoDiaMes = new Date(anoCalendario, mesCalendario + 1, 0).getDate();
+    
+    for (let d = 1; d <= ultimoDiaMes; d++) {
+      let ch = gerarChaveDiaAtividades(anoCalendario, mesCalendario, d);
+      if (registros[ch]) {
+        const registroDiaAno = normalizarRegistroDia(registros[ch]);
+        totalHorasAno += Number(registroDiaAno.manha.horas || 0) + Number(registroDiaAno.tarde.horas || 0);
+      }
+    }
+  }
+
+  let horasEsperadas = mesIndiceAnoServico * META_DE_HORAS;
+  let deficit = horasEsperadas - totalHorasAno;
+  
+  // A porcentagem da barra representa o progresso anual em relação às 600 horas
+  let percentualAno = Math.round((totalHorasAno / (META_DE_HORAS * 12)) * 100);
+  let corBarraAno;
+  
+  if (deficit <= 0) {
+    corBarraAno = '#10b981'; // Verde
+  } else {
+    let ratio = deficit / Math.max(1, horasEsperadas);
+    if (mesIndiceAnoServico <= 6) {
+      // Entre Setembro e Fevereiro: Amarelo (variando suavemente para laranja se houver distanciamento)
+      let hueAno = 50 - (ratio * 20); // Varia de 50 a 30
+      corBarraAno = `hsl(${hueAno}, 100%, 45%)`;
+    } else {
+      // A partir de Março: Vermelho, passando para amarelo se houver recuperação (aproximação da média)
+      let hueAno = 50 - (ratio * 100); // Cai rapidamente para 0 (Vermelho) se o distanciamento for grande
+      hueAno = Math.max(0, Math.min(50, hueAno));
+      corBarraAno = `hsl(${hueAno}, 100%, 45%)`;
+    }
+  }
+
+  const progressoAnoElemento = document.getElementById('progresso-ano-atividades');
+  const barraProgressoAnoElemento = document.getElementById('barra-progresso-ano-atividades');
+  const totalAnoLabel = document.getElementById('total-ano-label');
+
+  if (progressoAnoElemento) progressoAnoElemento.textContent = `${percentualAno}%`;
+  if (totalAnoLabel) totalAnoLabel.textContent = `${totalHorasAno.toFixed(1)}h`;
+  
+  if (barraProgressoAnoElemento) {
+    barraProgressoAnoElemento.style.width = `${Math.min(percentualAno, 100)}%`;
+    barraProgressoAnoElemento.style.background = corBarraAno;
+  }
+  // --- FIM DA BARRA DE PROGRESSO ANUAL ---
  
   if (mediaDiariaElemento) mediaDiariaElemento.textContent = `${(totalHorasMes / Math.max(diasPreenchidos, 1)).toFixed(1)}h`;
 }
@@ -434,11 +514,12 @@ function salvarAtividadeRapida() {
   const registros = carregarRegistrosAtividades();
   const chaveDia = gerarChaveDiaAtividades(anoAtividadesAtual, mesAtividadesAtual, dia);
 
-  if (!registros[chaveDia]) {
-    registros[chaveDia] = {
-      manha: { servico: '', horas: '' },
-      tarde: { servico: '', horas: '' }
-    };
+  // Normaliza o registro existente (pode ser antigo e não ter o campo "credito")
+  registros[chaveDia] = normalizarRegistroDia(registros[chaveDia]);
+
+  if (Number(horas) === 0) {
+    alert('O valor de horas deve ser maior que zero.');
+    return;
   }
 
   registros[chaveDia][periodo] = {
@@ -654,18 +735,101 @@ const pioneirosRegulares = ["andré almeida de souza", "alessandra dionisio dos 
 
 const grupoPermitido = ["andré almeida de souza", "alessandra dionisio dos santos", "ana carolina", "amanda santos", "anacilia araujo", "analice santos", "edilene matos", "elisangela santos", "enzo dionisio dos santos", "erik ferreira", "gicelia peron de santana", "ivanice lira", "josé ailton lira", "larissa guedes", "larissa lira", "lucas bittencourt", "manassés acácio", "marcia pereira", "roque santos", "vanuza lira"];
 
-// Alterna formulário
-document.getElementById("relatorio").addEventListener("click", () => {
-  const formContainer = document.getElementById("form-container");
-  if (!formContainer) return;
+// Flip card: mostra o formulário atrás do cartão e reverte ao clicar novamente
+(function() {
+  const relatorio = document.getElementById('relatorio');
+  const formContainer = document.getElementById('form-container');
+  if (!relatorio || !formContainer) return;
 
-  if (formContainer.style.display === "none" || formContainer.style.display === "") {
-    formContainer.style.display = "block";
-    formContainer.scrollIntoView({ behavior: "smooth", block: "center" });
-  } else {
-    formContainer.style.display = "none";
-  }
-});
+  // guarda referência para restaurar depois
+  const originalParent = formContainer.parentNode;
+  const originalNextSibling = formContainer.nextSibling;
+  let formMoved = false;
+  let placeholder = null;
+  // bloqueio que impede fechar o cartão por alguns segundos
+  window.relatorioLock = false;
+
+  relatorio.addEventListener('click', (e) => {
+    const inner = relatorio.querySelector('.relatorio-inner');
+    // quando o formulário estiver no back face, não dispare o flip ao clicar dentro dos campos do formulário
+    if (formMoved && formContainer.contains(e.target)) return;
+    // se estiver bloqueado (após envio), não permita fechar por enquanto
+    if (relatorio.classList.contains('flipped') && window.relatorioLock) return;
+    if (!relatorio.classList.contains('flipped')) {
+      // move o formulário para dentro do cartão (back face)
+      if (!formMoved && inner) {
+        // medir o formulário (está provavelmente display:none) criando visibilidade temporária
+        formContainer.style.display = 'block';
+        formContainer.style.visibility = 'hidden';
+        // cria placeholder pequeno para evitar grande espaçamento (8px)
+        placeholder = document.createElement('div');
+        placeholder.id = 'form-placeholder';
+        placeholder.style.width = '100%';
+        placeholder.style.height = '8px';
+        placeholder.style.marginTop = '0px';
+        placeholder.style.marginBottom = '0px';
+        placeholder.style.pointerEvents = 'none';
+        originalParent.insertBefore(placeholder, originalNextSibling);
+        // restaura visibilidade e move para o back face
+        formContainer.style.visibility = '';
+        formContainer.classList.add('relatorio-back');
+        inner.appendChild(formContainer);
+        formMoved = true;
+      }
+      formContainer.style.display = 'block';
+      // dá tempo para o browser aplicar o display antes da rotação
+      requestAnimationFrame(() => relatorio.classList.add('flipped'));
+    } else {
+      // desfaz o flip e restaura o formulário ao seu lugar original
+      relatorio.classList.remove('flipped');
+      const onTransEnd = function() {
+        if (formMoved) {
+          // restaura para o local original
+          originalParent.insertBefore(formContainer, originalNextSibling);
+          formContainer.classList.remove('relatorio-back');
+          formContainer.style.display = 'none';
+          // remove placeholder
+          if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+          placeholder = null;
+          formMoved = false;
+        }
+        inner.removeEventListener('transitionend', onTransEnd);
+      };
+      inner.addEventListener('transitionend', onTransEnd);
+    }
+  });
+
+  // Exponha função para fechar o relatorio (reverter flip) para ser usada em outros handlers
+  window.closeRelatorio = function() {
+    if (!relatorio || !formContainer) return;
+    const inner = relatorio.querySelector('.relatorio-inner');
+    if (relatorio.classList.contains('flipped')) {
+      relatorio.classList.remove('flipped');
+      const onTransEnd2 = function() {
+        if (formMoved) {
+          originalParent.insertBefore(formContainer, originalNextSibling);
+          formContainer.classList.remove('relatorio-back');
+          formContainer.style.display = 'none';
+          // remove placeholder se existir
+          if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+          placeholder = null;
+          formMoved = false;
+        }
+        inner.removeEventListener('transitionend', onTransEnd2);
+      };
+      inner.addEventListener('transitionend', onTransEnd2);
+    } else {
+      if (formMoved) {
+        originalParent.insertBefore(formContainer, originalNextSibling);
+        formContainer.classList.remove('relatorio-back');
+        formContainer.style.display = 'none';
+        if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+        placeholder = null;
+        formMoved = false;
+      }
+    }
+  };
+})();
 
 // Validação
 document.getElementById("formulario").addEventListener("submit", function(event) {
@@ -729,6 +893,14 @@ document.getElementById("formulario").addEventListener("submit", function(event)
   document.getElementById("mensagem").style.color = "green";
   document.getElementById("mensagem").innerText = "Relatório enviado com sucesso!";
   this.reset();
+  // Bloqueia o fechamento por 5s para permitir leitura da mensagem, depois reverte o flip
+  if (typeof window.closeRelatorio === 'function') {
+    window.relatorioLock = true;
+    setTimeout(() => {
+      window.closeRelatorio();
+      window.relatorioLock = false;
+    }, 5000);
+  }
 });
 // =========================================================
 // BLOQUEIO DINÂMICO DOS CAMPOS DE RELATÓRIO

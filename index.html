@@ -27,8 +27,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-          "
+            margin-bottom: 10px;"
         >
           <button id="btn-mes-anterior">&lt;</button>
           <span id="mes-ano-display"></span>
@@ -93,9 +92,12 @@
         </div>
       </div>
 
-      <div class="card" id="anuncios">Para o Grupo</div>
+      <div class="card" id="anuncios">Para o Grupo
+        
+      </div>
+
       <div class="card card-atividades" id="minhas-atividades">
-        <!-- 1. Título centralizado sozinho na linha -->
+        
         <div class="atividades-header">
           <h3>Minhas Atividades</h3>
         </div>
@@ -108,24 +110,31 @@
             </div>
           </div>
 
-          <span class="atividades-total-wrapper">
-            Horas do mês:
-            <strong id="total-mes-atividades" class="atividades-total-botao"
-              >0h</strong
-            >
-          </span>
+          <div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end;">
+            <span class="atividades-total-wrapper" style="font-size: 0.75rem;">
+              Mês:
+              <strong id="total-mes-atividades" class="atividades-total-botao" style="min-width: 80px; padding: 2px 8px; font-size: 0.75rem;">0h</strong>
+            </span>
+            <span class="atividades-total-wrapper" style="font-size: 0.75rem;">
+              Ano:
+              <strong id="total-ano-label" class="atividades-total-botao" style="min-width: 80px; padding: 2px 8px; font-size: 0.75rem;">0h</strong>
+            </span>
+          </div>
         </div>
 
-        <div class="atividades-progresso">
-          <div class="atividades-barra">
-            <div
-              class="atividades-barra-fill"
-              id="barra-progresso-atividades"
-            ></div>
+        <div class="atividades-progresso" style="align-items: center; margin-bottom: 4px;">
+          <div style="display: flex; flex-direction: column; flex: 1; gap: 1px;">
+            <div class="atividades-barra" style="margin-bottom: 0; flex: none; width: 100%;">
+              <div class="atividades-barra-fill" id="barra-progresso-atividades"></div>
+            </div>
+            <div class="atividades-barra" style="margin-bottom: 0; flex: none; width: 100%;">
+              <div class="atividades-barra-fill" id="barra-progresso-ano-atividades"></div>
+            </div>
           </div>
-          <span class="atividades-progresso-valor" id="progresso-mes-atividades"
-            >0%</span
-          >
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+            <span class="atividades-progresso-valor" id="progresso-mes-atividades" style="line-height: 6px; font-size: 0.75rem;">0%</span>
+            <span class="atividades-progresso-valor" id="progresso-ano-atividades" style="line-height: 6px; font-size: 0.75rem;">0%</span>
+          </div>
         </div>
 
         <div class="atividades-rail" id="atividades-mes"></div>
@@ -154,10 +163,12 @@
       </div>
 
       <div class="card" id="relatorio">
-        <div class="relatorio-image-wrapper">
-          <img src="img/S-4_T1.jpg" alt="Ícone Relatório" />
-          <span class="borda-esquerda"></span>
-          <span class="borda-direita"></span>
+        <div class="relatorio-inner">
+          <div class="relatorio-front relatorio-image-wrapper">
+            <img src="img/S-4_T1.jpg" alt="Ícone Relatório" />
+            <span class="borda-esquerda"></span>
+            <span class="borda-direita"></span>
+          </div>
         </div>
       </div>
     </main>
