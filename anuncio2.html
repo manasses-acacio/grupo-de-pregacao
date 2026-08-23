@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anúncio 2</title>
+    <style>
+      body {
+        background-color: #222; /* Fundo escuro para destacar as imagens */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+      }
+      h1 {
+        color: aliceblue;
+      }
+      .btn-fechar {
+        width: 30%;
+        height: 30px;
+        background-color: rgba(255, 255, 255, 0.3);
+        color: azure;
+        border-radius: 8px;
+        text-align: center;
+        padding: 5px;
+        text-decoration: none;
+      }
+      img {
+        max-width: 100%; /* Garante que caiba no celular */
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+      .grupo-hero {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+      .grupo-hero img {
+        width: 100%;
+        display: block;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .grupo-hero-texto {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 20px 15px;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.85),
+          rgba(0, 0, 0, 0)
+        );
+        color: aliceblue;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="index.html"
+      class="btn-fechar"
+      onclick="
+        window.close();
+        return false;
+      "
+    >
+      Fechar e Voltar</a
+    >
+
+    <!-- Imagem do grupo com o texto sobreposto -->
+    <div class="grupo-hero">
+      <img src="img/grupo.jpeg" alt="Foto do grupo" />
+      <h1 class="grupo-hero-texto">
+        Nosso grupo de serviço de campo é um presente para nós
+      </h1>
+    </div>
+  </body>
+</html>
