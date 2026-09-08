@@ -41,7 +41,7 @@ h2 {
 h3, h4 {
     font-family: 'Orbitron', sans-serif;
     margin: -20px 0px;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0);
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     color: rgb(130, 107, 224);
     border-radius: 6px;

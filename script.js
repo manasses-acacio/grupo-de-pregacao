@@ -160,15 +160,16 @@ function atualizarRegistroAtividade(elemento) {
     registros[chaveDia][periodo].servico = elemento.value;
   } else {
     const valor = elemento.value === '' ? '' : Number(elemento.value);
-    // Validação: não permite horas iguais a 0
-    if (valor === 0) {
-      alert('O valor de horas deve ser maior que zero.');
+
+    if (elemento.value !== '' && (!Number.isFinite(valor) || valor < 0)) {
+      alert('Informe um valor de horas válido.');
       elemento.value = '';
       registros[chaveDia][periodo].horas = '';
       salvarRegistrosAtividades(registros);
       renderizarAtividades();
       return;
     }
+
     registros[chaveDia][periodo].horas = valor;
   }
 
@@ -315,7 +316,7 @@ function renderizarAtividades() {
           <option value="">Manhã</option>
           ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.manha.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
         </select>
-        <input class="atividade-input" type="number" min="0.5" step="0.5" value="${registroDia.manha.horas ?? ''}" data-dia="${chaveDia}" data-periodo="manha" placeholder="h">
+        <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.manha.horas ?? ''}" data-dia="${chaveDia}" data-periodo="manha" placeholder="h">
       </div>
 
       <div class="atividade-periodo">
@@ -323,7 +324,7 @@ function renderizarAtividades() {
           <option value="">Tarde</option>
           ${tiposServicoAtividades.map((tipo) => `<option value="${tipo}" ${registroDia.tarde.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
         </select>
-        <input class="atividade-input" type="number" min="0.5" step="0.5" value="${registroDia.tarde.horas ?? ''}" data-dia="${chaveDia}" data-periodo="tarde" placeholder="h">
+        <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.tarde.horas ?? ''}" data-dia="${chaveDia}" data-periodo="tarde" placeholder="h">
       </div>
 
       <div class="atividade-periodo">
@@ -331,7 +332,7 @@ function renderizarAtividades() {
           <option value="">Crédito de Horas</option>
           ${tiposCreditoHoras.map((tipo) => `<option value="${tipo}" ${registroDia.credito.servico === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
         </select>
-        <input class="atividade-input" type="number" min="0.5" step="0.5" value="${registroDia.credito.horas ?? ''}" data-dia="${chaveDia}" data-periodo="credito" placeholder="h">
+        <input class="atividade-input" type="number" min="0" step="0.5" value="${registroDia.credito.horas ?? ''}" data-dia="${chaveDia}" data-periodo="credito" placeholder="h">
       </div>
     `;
 
@@ -403,7 +404,7 @@ function renderizarAtividades() {
     .join('');
 
   if (resumoTiposElemento) resumoTiposElemento.innerHTML = itensResumo || '<span class="resumo-tipo-item">Nenhum serviço registrado</span>';
-  if (totalMesElemento) totalMesElemento.textContent = `${totalHorasMes.toFixed(1)} h`;
+  if (totalMesElemento) totalMesElemento.textContent = `${totalHorasMes.toFixed(1)} H`;
   if (diasPreenchidosElemento) diasPreenchidosElemento.textContent = diasPreenchidos;
   if (diasVaziosElemento) diasVaziosElemento.textContent = diasVazios;
 
@@ -429,11 +430,13 @@ function renderizarAtividades() {
   // --- FIM DA BARRA DE PROGRESSO DE HORAS ---
 
   // --- INÍCIO DA BARRA DE PROGRESSO ANUAL ---
+  const META_ANUAL_HORAS = 600;
+  const META_DIARIA_HORAS = 1 + 40 / 60; // 1h40m por dia
+
   let anoInicio = mesAtividadesAtual >= 8 ? anoAtividadesAtual : anoAtividadesAtual - 1;
   let totalHorasAno = 0;
   let mesIndiceAnoServico = (mesAtividadesAtual >= 8) ? mesAtividadesAtual - 7 : mesAtividadesAtual + 5;
   
-  // O cálculo considera a soma das horas realizadas do início do ano de serviço até o mês corrente
   for (let m = 0; m < mesIndiceAnoServico; m++) {
     let mesCalendario = (m + 8) % 12;
     let anoCalendario = m < 4 ? anoInicio : anoInicio + 1;
@@ -448,27 +451,25 @@ function renderizarAtividades() {
     }
   }
 
-  let horasEsperadas = mesIndiceAnoServico * META_DE_HORAS;
-  let deficit = horasEsperadas - totalHorasAno;
-  
-  // A porcentagem da barra representa o progresso anual em relação às 600 horas
-  let percentualAno = Math.round((totalHorasAno / (META_DE_HORAS * 12)) * 100);
+  // Causa do problema: a meta não deve ser calculada por "mês x 30".
+  // Ela deve ser calculada em relação ao tempo real desde 01/09 até hoje.
+  const dataInicioAnoServico = new Date(anoInicio, 8, 1);
+  const hoje = new Date();
+  const diasDecorridos = Math.max(0, Math.floor((hoje - dataInicioAnoServico) / (1000 * 60 * 60 * 24)) + 1);
+  const horasEsperadasAteHoje = Math.min(META_ANUAL_HORAS, diasDecorridos * META_DIARIA_HORAS);
+  const percentualAno = Math.min(100, Math.round((totalHorasAno / META_ANUAL_HORAS) * 100));
+  const progressoRelativoAno = horasEsperadasAteHoje > 0 ? Math.min(1, Math.max(0, totalHorasAno / horasEsperadasAteHoje)) : 0;
+
+  // Verde quando alcança a meta proporcional do dia/ano; amarelo/laranja/vermelho abaixo.
   let corBarraAno;
-  
-  if (deficit <= 0) {
-    corBarraAno = '#10b981'; // Verde
+  if (progressoRelativoAno >= 1) {
+    corBarraAno = '#22c55e';
+  } else if (progressoRelativoAno >= 0.9) {
+    corBarraAno = '#facc15';
+  } else if (progressoRelativoAno >= 0.7) {
+    corBarraAno = '#f97316';
   } else {
-    let ratio = deficit / Math.max(1, horasEsperadas);
-    if (mesIndiceAnoServico <= 6) {
-      // Entre Setembro e Fevereiro: Amarelo (variando suavemente para laranja se houver distanciamento)
-      let hueAno = 50 - (ratio * 20); // Varia de 50 a 30
-      corBarraAno = `hsl(${hueAno}, 100%, 45%)`;
-    } else {
-      // A partir de Março: Vermelho, passando para amarelo se houver recuperação (aproximação da média)
-      let hueAno = 50 - (ratio * 100); // Cai rapidamente para 0 (Vermelho) se o distanciamento for grande
-      hueAno = Math.max(0, Math.min(50, hueAno));
-      corBarraAno = `hsl(${hueAno}, 100%, 45%)`;
-    }
+    corBarraAno = '#ef4444';
   }
 
   const progressoAnoElemento = document.getElementById('progresso-ano-atividades');
@@ -476,11 +477,12 @@ function renderizarAtividades() {
   const totalAnoLabel = document.getElementById('total-ano-label');
 
   if (progressoAnoElemento) progressoAnoElemento.textContent = `${percentualAno}%`;
-  if (totalAnoLabel) totalAnoLabel.textContent = `${totalHorasAno.toFixed(1)}h`;
+  if (totalAnoLabel) totalAnoLabel.textContent = `${totalHorasAno.toFixed(1)} H`;
   
   if (barraProgressoAnoElemento) {
     barraProgressoAnoElemento.style.width = `${Math.min(percentualAno, 100)}%`;
-    barraProgressoAnoElemento.style.background = corBarraAno;
+    barraProgressoAnoElemento.style.background = `linear-gradient(90deg, ${corBarraAno} 0%, ${corBarraAno} 100%)`;
+    barraProgressoAnoElemento.style.boxShadow = 'none';
   }
   // --- FIM DA BARRA DE PROGRESSO ANUAL ---
  
@@ -517,14 +519,15 @@ function salvarAtividadeRapida() {
   // Normaliza o registro existente (pode ser antigo e não ter o campo "credito")
   registros[chaveDia] = normalizarRegistroDia(registros[chaveDia]);
 
-  if (Number(horas) === 0) {
-    alert('O valor de horas deve ser maior que zero.');
+  const valorHoras = Number(horas);
+  if (!Number.isFinite(valorHoras) || valorHoras < 0) {
+    alert('Informe um valor de horas válido.');
     return;
   }
 
   registros[chaveDia][periodo] = {
     servico,
-    horas: Number(horas)
+    horas: valorHoras
   };
 
   salvarRegistrosAtividades(registros);
